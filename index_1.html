@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Расписание боссов — Гильдия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void: #0b0e14;
+    --bg-panel: #131826;
+    --bg-panel-raised: #1a2033;
+    --hairline: #262d42;
+    --gold: #c9a227;
+    --gold-dim: #8c6d3f;
+    --emerald: #3fa796;
+    --crimson: #b2434f;
+    --text-primary: #ece5d3;
+    --text-muted: #8b90a8;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg-void); color: var(--text-primary); font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; }
+  body { background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(201,162,39,0.10), transparent 60%), repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px); }
+  a { color: inherit; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header { padding: 40px 0 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--hairline); margin-bottom: 36px; }
+  .brand-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dim); margin: 0 0 6px; }
+  .brand-title { font-family: 'Cinzel', serif; font-weight: 600; font-size: 26px; margin: 0 0 20px; letter-spacing: 0.01em; }
+
+  .tz-picker { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-bottom: 20px; }
+  .tz-picker label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+  .tz-picker select {
+    background: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--hairline);
+    border-radius: 6px; padding: 8px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; cursor: pointer;
+  }
+  .tz-picker select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .hero { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; padding: 8px 0 44px; }
+  .ring-box { position: relative; width: 168px; height: 168px; flex-shrink: 0; }
+  .ring-box svg { transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: var(--hairline); stroke-width: 6; }
+  .ring-progress { fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 6px rgba(201,162,39,0.5)); }
+  .ring-progress.is-live { stroke: var(--emerald); filter: drop-shadow(0 0 8px rgba(63,167,150,0.6)); }
+  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .ring-timer { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .ring-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-top: 4px; }
+  .hero-info .kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-dim); margin: 0 0 8px; }
+  .hero-info h2 { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; margin: 0 0 10px; }
+  .hero-info p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+  .section-head { display: flex; align-items: center; gap: 14px; margin: 44px 0 18px; }
+  .section-head h3 { font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 0; white-space: nowrap; }
+  .section-rule { flex: 1; height: 1px; background: var(--hairline); }
+
+  /* --- weather panel --- */
+  .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .weather-grid { grid-template-columns: 1fr; } }
+  .weather-card { background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 18px 20px; }
+  .weather-card .w-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-dim); margin: 0 0 8px; }
+  .weather-card .w-value { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500; margin: 0 0 4px; font-variant-numeric: tabular-nums; }
+  .weather-card .w-sub { font-size: 12px; color: var(--text-muted); }
+  .calib-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .calib-row input[type="datetime-local"] {
+    background: var(--bg-void); color: var(--text-primary); border: 1px solid var(--hairline);
+    border-radius: 6px; padding: 6px 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; flex: 1; min-width: 180px;
+  }
+  .calib-row button {
+    background: var(--gold-dim); color: var(--bg-void); border: none; border-radius: 6px;
+    padding: 6px 14px; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer;
+  }
+  .calib-row button:hover { background: var(--gold); }
+
+  .boss-list { display: flex; flex-direction: column; gap: 10px; }
+  .boss-row { display: grid; grid-template-columns: 84px 1fr auto auto; align-items: center; gap: 18px; background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 20px; opacity: 0; animation: rise 0.5s ease forwards; }
+  .boss-row:nth-child(1){ animation-delay: 0.02s; } .boss-row:nth-child(2){ animation-delay: 0.07s; }
+  .boss-row:nth-child(3){ animation-delay: 0.12s; } .boss-row:nth-child(4){ animation-delay: 0.17s; }
+  .boss-row:nth-child(5){ animation-delay: 0.22s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .boss-row { animation: none; opacity: 1; } .ring-progress { transition: none; } }
+
+  .boss-clock { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--text-muted); }
+  .boss-clock .hh { font-size: 17px; color: var(--text-primary); font-weight: 500; }
+  .boss-name-wrap { min-width: 0; }
+  .boss-name { font-weight: 600; font-size: 15px; margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .boss-loc { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .boss-countdown { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-variant-numeric: tabular-nums; text-align: right; min-width: 78px; }
+  .status-pill { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border-radius: 100px; white-space: nowrap; text-align: center; }
+  .status-live { background: rgba(63,167,150,0.14); color: var(--emerald); border: 1px solid rgba(63,167,150,0.4); animation: pulse 2s ease-in-out infinite; }
+  .status-soon { background: rgba(178,67,79,0.14); color: #d98e96; border: 1px solid rgba(178,67,79,0.4); }
+  .status-normal { background: rgba(140,109,63,0.12); color: var(--gold-dim); border: 1px solid rgba(140,109,63,0.35); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+  @media (max-width: 640px) {
+    .boss-row { grid-template-columns: 1fr auto; grid-template-areas: "name status" "clock countdown"; row-gap: 8px; }
+    .boss-clock { grid-area: clock; } .boss-name-wrap { grid-area: name; }
+    .status-pill { grid-area: status; justify-self: end; } .boss-countdown { grid-area: countdown; text-align: right; }
+    .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  }
+
+  footer { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--hairline); font-size: 12px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <p class="brand-eyebrow">Throne &amp; Liberty · Astrum RU</p>
+      <h1 class="brand-title">Расписание боссов гильдии</h1>
+    </div>
+    <div class="tz-picker">
+      <label for="tz-select">Часовой пояс</label>
+      <select id="tz-select"></select>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="ring-box">
+      <svg viewBox="0 0 168 168" width="168" height="168">
+        <circle class="ring-track" cx="84" cy="84" r="76"></circle>
+        <circle class="ring-progress" id="ring-progress" cx="84" cy="84" r="76" stroke-dasharray="477.5" stroke-dashoffset="477.5"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-timer" id="ring-timer">--:--</div>
+        <div class="ring-label">до следующего</div>
+      </div>
+    </div>
+    <div class="hero-info">
+      <p class="kicker">Ближайший босс</p>
+      <h2 id="next-name">—</h2>
+      <p id="next-loc">Загружаю расписание…</p>
+    </div>
+  </section>
+
+  <div class="section-head"><h3>Мир</h3><div class="section-rule"></div></div>
+
+  <div class="weather-grid">
+    <div class="weather-card">
+      <p class="w-label">Дождь</p>
+      <p class="w-value" id="rain-value">—</p>
+      <p class="w-sub" id="rain-sub">расчёт по общему 75-часовому циклу</p>
+    </div>
+    <div class="weather-card">
+      <p class="w-label">День / ночь</p>
+      <p class="w-value" id="night-value">не откалибровано</p>
+      <p class="w-sub" id="night-sub">укажите время начала ближайшей ночи один раз — дальше цикл посчитается сам</p>
+      <div class="calib-row">
+        <input type="datetime-local" id="night-input">
+        <button id="night-save">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head"><h3>Все боссы</h3><div class="section-rule"></div></div>
+  <div class="boss-list" id="boss-list"></div>
+
+  <footer>
+    Респауны считаются по формуле «первый спавн + интервал», без ручного перезаполнения на каждый цикл.<br>
+    Дождь считается по известному фикс-циклу (75 ч, окно 15 мин), общему для всех серверов TL.<br>
+    Редактирование расписания — в исходном коде страницы, блок BOSSES в конце файла.
+  </footer>
+
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   РЕДАКТИРОВАНИЕ РАСПИСАНИЯ БОССОВ
+
+   anchor       — ЛЮБОЙ реальный момент, когда босс точно заспавнился
+                  (дата+время+смещение часового пояса, формат ISO).
+   intervalHours — через сколько часов респаун повторяется.
+
+   Дальше сайт сам считает все следующие респауны по кругу:
+   anchor, anchor+interval, anchor+interval*2, ...
+   Не нужно вписывать каждый следующий респаун вручную.
+------------------------------------------------------------------- */
+
+const BOSSES = [
+  { name: "Босс-ивент",              location: "Руины обсерватории", anchor: "2026-07-15T02:00:00+05:00", intervalHours: 3 },
+  { name: "Столкновение с клювозавром", location: "Лассен",          anchor: "2026-07-15T05:30:00+05:00", intervalHours: 6 },
+  { name: "Гости из мира иного",     location: "Аванпост Лассена",   anchor: "2026-07-15T09:00:00+05:00", intervalHours: 8 },
+  { name: "Хроники искателя",        location: "Стоунгард",          anchor: "2026-07-15T12:00:00+05:00", intervalHours: 4 },
+];
+
+/* ------------------------------------------------------------------
+   Часовые пояса в переключателе. offsetMinutes — смещение от UTC.
+------------------------------------------------------------------- */
+
+const TIMEZONES = [
+  { label: "Москва (UTC+3)",        offsetMinutes: 180 },
+  { label: "Екатеринбург (UTC+5)",  offsetMinutes: 300 },
+  { label: "Новосибирск (UTC+7)",   offsetMinutes: 420 },
+  { label: "Владивосток (UTC+10)",  offsetMinutes: 600 },
+  { label: "Киев/Минск (UTC+3)",    offsetMinutes: 180 },
+  { label: "Алматы (UTC+5)",        offsetMinutes: 300 },
+  { label: "UTC",                   offsetMinutes: 0 },
+];
+
+/* ------------------------------------------------------------------
+   Настройки погоды. Дождь — известный публичный цикл, не требует калибровки.
+   День/ночь — цикл известен (2ч день + 30мин ночь), но точка отсчёта
+   отличается от сервера к серверу, поэтому калибруется один раз через
+   поле на странице (сохраняется в этом браузере).
+------------------------------------------------------------------- */
+
+const RAIN_CYCLE_MS = 75 * 3600 * 1000;
+const RAIN_WINDOW_MS = 15 * 60 * 1000;
+const RAIN_ANCHOR_MS = 1727685900000; // известная точка начала окна дождя
+
+const DAY_MS = 2 * 3600 * 1000;
+const NIGHT_MS = 30 * 60 * 1000;
+
+/* ------------------------------------------------------------------ */
+
+function loadTZIndex() {
+  const saved = localStorage.getItem('guild_tz_index');
+  return saved !== null ? Number(saved) : 0; // 0 = МСК по умолчанию
+}
+function saveTZIndex(i) { localStorage.setItem('guild_tz_index', String(i)); }
+
+function loadNightAnchor() {
+  const saved = localStorage.getItem('guild_night_anchor_ms');
+  return saved !== null ? Number(saved) : null;
+}
+function saveNightAnchor(ms) { localStorage.setItem('guild_night_anchor_ms', String(ms)); }
+
+function mod(a, n) { return ((a % n) + n) % n; }
+
+function fmtCountdown(ms) {
+  if (ms < 0) ms = 0;
+  const totalSec = Math.floor(ms/1000);
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  const pad = n => String(n).padStart(2,'0');
+  return h > 0 ? (h+':'+pad(m)+':'+pad(s)) : (pad(m)+':'+pad(s));
+}
+
+function fmtClockInTZ(ms, offsetMinutes) {
+  const shifted = new Date(ms + offsetMinutes * 60000);
+  return String(shifted.getUTCHours()).padStart(2,'0') + ':' + String(shifted.getUTCMinutes()).padStart(2,'0');
+}
+
+function nextBossOccurrence(anchorIso, intervalHours, nowMs) {
+  const anchorMs = new Date(anchorIso).getTime();
+  const intervalMs = intervalHours * 3600 * 1000;
+  if (anchorMs > nowMs) return anchorMs;
+  const diff = nowMs - anchorMs;
+  const steps = Math.ceil(diff / intervalMs) || 1;
+  let result = anchorMs + steps * intervalMs;
+  if (result <= nowMs) result += intervalMs;
+  return result;
+}
+
+function statusFor(msRemaining) {
+  if (msRemaining <= 5 * 60 * 1000) return 'live';
+  if (msRemaining <= 30 * 60 * 1000) return 'soon';
+  return 'normal';
+}
+
+function rainStatus(nowMs) {
+  const since = mod(nowMs - RAIN_ANCHOR_MS, RAIN_CYCLE_MS);
+  if (since < RAIN_WINDOW_MS) {
+    return { raining: true, remainingMs: RAIN_WINDOW_MS - since };
+  }
+  return { raining: false, remainingMs: RAIN_CYCLE_MS - since };
+}
+
+function nightStatusClean(nowMs, nightAnchorMs) {
+  const cycle = DAY_MS + NIGHT_MS;
+  const since = mod(nowMs - nightAnchorMs, cycle);
+  if (since < NIGHT_MS) return { isNight: true, remainingMs: NIGHT_MS - since };
+  return { isNight: false, remainingMs: cycle - since };
+}
+
+/* ------------------------------------------------------------------ */
+
+const tzSelect = document.getElementById('tz-select');
+let tzIndex = loadTZIndex();
+
+TIMEZONES.forEach((tz, i) => {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = tz.label;
+  tzSelect.appendChild(opt);
+});
+tzSelect.value = tzIndex;
+tzSelect.addEventListener('change', () => {
+  tzIndex = Number(tzSelect.value);
+  saveTZIndex(tzIndex);
+});
+
+const nightInput = document.getElementById('night-input');
+const nightSaveBtn = document.getElementById('night-save');
+nightSaveBtn.addEventListener('click', () => {
+  if (!nightInput.value) return;
+  const ms = new Date(nightInput.value).getTime();
+  if (!isNaN(ms)) saveNightAnchor(ms);
+});
+
+const listEl = document.getElementById('boss-list');
+const ringProgress = document.getElementById('ring-progress');
+const ringTimer = document.getElementById('ring-timer');
+const nextName = document.getElementById('next-name');
+const nextLoc = document.getElementById('next-loc');
+const rainValueEl = document.getElementById('rain-value');
+const rainSubEl = document.getElementById('rain-sub');
+const nightValueEl = document.getElementById('night-value');
+const nightSubEl = document.getElementById('night-sub');
+
+const RING_CIRC = 477.5;
+
+const rowEls = BOSSES.map((b, i) => {
+  const row = document.createElement('div');
+  row.className = 'boss-row';
+  row.innerHTML = `
+    <div class="boss-clock"><span class="hh" data-clock="${i}">--:--</span><br>каждые ${b.intervalHours} ч</div>
+    <div class="boss-name-wrap">
+      <p class="boss-name">${b.name}</p>
+      <p class="boss-loc">${b.location}</p>
+    </div>
+    <div class="boss-countdown" data-idx="${i}">--:--</div>
+    <div class="status-pill" data-idx="${i}">—</div>
+  `;
+  listEl.appendChild(row);
+  return row;
+});
+
+function tick() {
+  const nowMs = Date.now();
+  const offsetMinutes = TIMEZONES[tzIndex].offsetMinutes;
+
+  let soonest = null;
+
+  BOSSES.forEach((b, i) => {
+    const targetMs = nextBossOccurrence(b.anchor, b.intervalHours, nowMs);
+    const remaining = targetMs - nowMs;
+
+    if (soonest === null || remaining < soonest.remaining) {
+      soonest = { boss: b, remaining, targetMs };
+    }
+
+    const clockEl = listEl.querySelector(`[data-clock="${i}"]`);
+    clockEl.textContent = fmtClockInTZ(targetMs, offsetMinutes);
+
+    const countdownEl = listEl.querySelector(`.boss-countdown[data-idx="${i}"]`);
+    const pillEl = listEl.querySelector(`.status-pill[data-idx="${i}"]`);
+    countdownEl.textContent = fmtCountdown(remaining);
+
+    const st = statusFor(remaining);
+    pillEl.className = 'status-pill status-' + st;
+    pillEl.textContent = st === 'live' ? 'скоро!' : (st === 'soon' ? 'приближается' : 'ожидание');
+  });
+
+  if (soonest) {
+    nextName.textContent = soonest.boss.name;
+    nextLoc.textContent = soonest.boss.location + ' · каждые ' + soonest.boss.intervalHours + ' ч · в ' + fmtClockInTZ(soonest.targetMs, offsetMinutes);
+    ringTimer.textContent = fmtCountdown(soonest.remaining);
+
+    const cycleMs = soonest.boss.intervalHours * 3600 * 1000;
+    const fraction = 1 - Math.min(soonest.remaining / cycleMs, 1);
+    ringProgress.style.strokeDashoffset = String(RING_CIRC * (1 - fraction));
+    ringProgress.classList.toggle('is-live', soonest.remaining <= 5 * 60 * 1000);
+  }
+
+  // дождь
+  const rain = rainStatus(nowMs);
+  if (rain.raining) {
+    rainValueEl.textContent = 'идёт · ' + fmtCountdown(rain.remainingMs);
+    rainSubEl.textContent = 'закончится через ' + fmtCountdown(rain.remainingMs);
+  } else {
+    rainValueEl.textContent = fmtCountdown(rain.remainingMs);
+    rainSubEl.textContent = 'до следующего окна дождя (15 минут)';
+  }
+
+  // день/ночь
+  const nightAnchorMs = loadNightAnchor();
+  if (nightAnchorMs === null) {
+    nightValueEl.textContent = 'не откалибровано';
+    nightSubEl.textContent = 'укажите время начала ближайшей ночи один раз — дальше цикл посчитается сам';
+  } else {
+    const ns = nightStatusClean(nowMs, nightAnchorMs);
+    if (ns.isNight) {
+      nightValueEl.textContent = 'ночь · ' + fmtCountdown(ns.remainingMs);
+      nightSubEl.textContent = 'день начнётся через ' + fmtCountdown(ns.remainingMs);
+    } else {
+      nightValueEl.textContent = 'день · ' + fmtCountdown(ns.remainingMs);
+      nightSubEl.textContent = 'ночь начнётся через ' + fmtCountdown(ns.remainingMs);
+    }
+  }
+}
+
+tick();
+setInterval(tick, 1000);
+</script>
+
+</body>
+</html>
