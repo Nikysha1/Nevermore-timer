@@ -9,17 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg-void: #0b0e14;
-    --bg-panel: #131826;
-    --bg-panel-raised: #1a2033;
-    --hairline: #262d42;
-    --gold: #c9a227;
-    --gold-dim: #8c6d3f;
-    --emerald: #3fa796;
-    --crimson: #b2434f;
-    --text-primary: #ece5d3;
-    --text-muted: #8b90a8;
-    --radius: 10px;
+    --bg-void: #0b0e14; --bg-panel: #131826; --bg-panel-raised: #1a2033; --hairline: #262d42;
+    --gold: #c9a227; --gold-dim: #8c6d3f; --emerald: #3fa796; --crimson: #b2434f;
+    --text-primary: #ece5d3; --text-muted: #8b90a8; --radius: 10px;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: var(--bg-void); color: var(--text-primary); font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -33,10 +25,7 @@
 
   .tz-picker { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-bottom: 20px; }
   .tz-picker label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
-  .tz-picker select {
-    background: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--hairline);
-    border-radius: 6px; padding: 8px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; cursor: pointer;
-  }
+  .tz-picker select { background: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--hairline); border-radius: 6px; padding: 8px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; cursor: pointer; }
   .tz-picker select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
   .hero { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; padding: 8px 0 44px; }
@@ -55,30 +44,24 @@
   .section-head { display: flex; align-items: center; gap: 14px; margin: 44px 0 18px; }
   .section-head h3 { font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 0; white-space: nowrap; }
   .section-rule { flex: 1; height: 1px; background: var(--hairline); }
+  .section-head .head-btn {
+    background: none; border: 1px solid var(--hairline); color: var(--text-muted); border-radius: 6px;
+    padding: 5px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; cursor: pointer; white-space: nowrap;
+  }
+  .section-head .head-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
 
-  /* --- weather panel --- */
   .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 640px) { .weather-grid { grid-template-columns: 1fr; } }
   .weather-card { background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 18px 20px; }
   .weather-card .w-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-dim); margin: 0 0 8px; }
   .weather-card .w-value { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500; margin: 0 0 4px; font-variant-numeric: tabular-nums; }
   .weather-card .w-sub { font-size: 12px; color: var(--text-muted); }
-  .calib-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .calib-row input[type="datetime-local"] {
-    background: var(--bg-void); color: var(--text-primary); border: 1px solid var(--hairline);
-    border-radius: 6px; padding: 6px 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; flex: 1; min-width: 180px;
-  }
-  .calib-row button {
-    background: var(--gold-dim); color: var(--bg-void); border: none; border-radius: 6px;
-    padding: 6px 14px; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer;
-  }
-  .calib-row button:hover { background: var(--gold); }
 
   .boss-list { display: flex; flex-direction: column; gap: 10px; }
-  .boss-row { display: grid; grid-template-columns: 84px 1fr auto auto; align-items: center; gap: 18px; background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 20px; opacity: 0; animation: rise 0.5s ease forwards; }
-  .boss-row:nth-child(1){ animation-delay: 0.02s; } .boss-row:nth-child(2){ animation-delay: 0.07s; }
-  .boss-row:nth-child(3){ animation-delay: 0.12s; } .boss-row:nth-child(4){ animation-delay: 0.17s; }
-  .boss-row:nth-child(5){ animation-delay: 0.22s; }
+  .boss-row { display: grid; grid-template-columns: 84px 1fr auto auto auto; align-items: center; gap: 16px; background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 20px; opacity: 0; animation: rise 0.4s ease forwards; }
+  .boss-row:nth-child(1){ animation-delay: 0.02s; } .boss-row:nth-child(2){ animation-delay: 0.06s; }
+  .boss-row:nth-child(3){ animation-delay: 0.10s; } .boss-row:nth-child(4){ animation-delay: 0.14s; }
+  .boss-row:nth-child(5){ animation-delay: 0.18s; }
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .boss-row { animation: none; opacity: 1; } .ring-progress { transition: none; } }
 
@@ -87,6 +70,7 @@
   .boss-name-wrap { min-width: 0; }
   .boss-name { font-weight: 600; font-size: 15px; margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .boss-loc { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .boss-note { font-size: 11px; color: var(--gold-dim); font-style: italic; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .boss-countdown { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-variant-numeric: tabular-nums; text-align: right; min-width: 78px; }
   .status-pill { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border-radius: 100px; white-space: nowrap; text-align: center; }
   .status-live { background: rgba(63,167,150,0.14); color: var(--emerald); border: 1px solid rgba(63,167,150,0.4); animation: pulse 2s ease-in-out infinite; }
@@ -94,12 +78,38 @@
   .status-normal { background: rgba(140,109,63,0.12); color: var(--gold-dim); border: 1px solid rgba(140,109,63,0.35); }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
-  @media (max-width: 640px) {
-    .boss-row { grid-template-columns: 1fr auto; grid-template-areas: "name status" "clock countdown"; row-gap: 8px; }
+  .row-actions { display: flex; gap: 6px; }
+  .icon-btn { background: none; border: 1px solid var(--hairline); color: var(--text-muted); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .icon-btn.danger:hover { border-color: var(--crimson); color: #e08d97; }
+
+  @media (max-width: 720px) {
+    .boss-row { grid-template-columns: 1fr auto; grid-template-areas: "name status" "clock countdown" "actions actions"; row-gap: 8px; }
     .boss-clock { grid-area: clock; } .boss-name-wrap { grid-area: name; }
     .status-pill { grid-area: status; justify-self: end; } .boss-countdown { grid-area: countdown; text-align: right; }
+    .row-actions { grid-area: actions; justify-content: flex-end; }
     .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
   }
+
+  /* --- edit form --- */
+  .edit-panel { display: none; background: var(--bg-panel-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .edit-panel.open { display: block; }
+  .edit-panel h4 { font-family: 'Cinzel', serif; font-size: 14px; margin: 0 0 14px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+  .form-field { display: flex; flex-direction: column; gap: 5px; }
+  .form-field label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+  .form-field input {
+    background: var(--bg-void); color: var(--text-primary); border: 1px solid var(--hairline); border-radius: 6px;
+    padding: 8px 10px; font-family: 'Manrope', sans-serif; font-size: 13px;
+  }
+  .form-field input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .form-actions { display: flex; gap: 10px; }
+  .btn-primary { background: var(--gold-dim); color: var(--bg-void); border: none; border-radius: 6px; padding: 9px 18px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-primary:hover { background: var(--gold); }
+  .btn-secondary { background: none; border: 1px solid var(--hairline); color: var(--text-muted); border-radius: 6px; padding: 9px 18px; font-size: 13px; cursor: pointer; }
+  .btn-secondary:hover { color: var(--text-primary); }
+  .sync-note { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin: -8px 0 16px; }
 
   footer { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--hairline); font-size: 12px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; line-height: 1.7; }
 </style>
@@ -137,57 +147,101 @@
   </section>
 
   <div class="section-head"><h3>Мир</h3><div class="section-rule"></div></div>
-
   <div class="weather-grid">
     <div class="weather-card">
       <p class="w-label">Дождь</p>
       <p class="w-value" id="rain-value">—</p>
-      <p class="w-sub" id="rain-sub">расчёт по общему 75-часовому циклу</p>
+      <p class="w-sub" id="rain-sub">75-часовой цикл, откалибровано по серверу</p>
     </div>
     <div class="weather-card">
       <p class="w-label">День / ночь</p>
-      <p class="w-value" id="night-value">не откалибровано</p>
-      <p class="w-sub" id="night-sub">укажите время начала ближайшей ночи один раз — дальше цикл посчитается сам</p>
-      <div class="calib-row">
-        <input type="datetime-local" id="night-input">
-        <button id="night-save">Сохранить</button>
-      </div>
+      <p class="w-value" id="night-value">—</p>
+      <p class="w-sub" id="night-sub">2 ч день + 30 мин ночь, откалибровано по серверу</p>
     </div>
   </div>
 
-  <div class="section-head"><h3>Все боссы</h3><div class="section-rule"></div></div>
+  <div class="section-head">
+    <h3>Все боссы</h3>
+    <div class="section-rule"></div>
+    <button class="head-btn" id="unlock-btn">🔒 Редактировать</button>
+  </div>
+
+  <div class="edit-panel" id="edit-panel">
+    <h4 id="edit-panel-title">Добавить босса</h4>
+    <div class="form-grid">
+      <div class="form-field"><label for="f-name">Название</label><input id="f-name" type="text" placeholder="Босс-ивент"></div>
+      <div class="form-field"><label for="f-loc">Локация</label><input id="f-loc" type="text" placeholder="Руины обсерватории"></div>
+      <div class="form-field"><label for="f-note">Заметка (необязательно)</label><input id="f-note" type="text" placeholder="напр. лут: астралит"></div>
+      <div class="form-field"><label for="f-interval">Интервал, часы</label><input id="f-interval" type="number" min="0.1" step="0.1" placeholder="3"></div>
+      <div class="form-field"><label for="f-anchor">Дата и время любого спавна</label><input id="f-anchor" type="datetime-local"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-primary" id="f-save">Сохранить</button>
+      <button class="btn-secondary" id="f-cancel">Отмена</button>
+    </div>
+  </div>
+
+  <p class="sync-note" id="sync-note"></p>
+
   <div class="boss-list" id="boss-list"></div>
 
   <footer>
-    Респауны считаются по формуле «первый спавн + интервал», без ручного перезаполнения на каждый цикл.<br>
-    Дождь считается по известному фикс-циклу (75 ч, окно 15 мин), общему для всех серверов TL.<br>
-    Редактирование расписания — в исходном коде страницы, блок BOSSES в конце файла.
+    Дождь и день/ночь считаются автоматически по циклам, откалиброванным для сервера.<br>
+    Респауны боссов = точка спавна + интервал, повторяется по кругу без ручного пересчёта.
   </footer>
 
 </div>
 
 <script>
 /* ------------------------------------------------------------------
-   РЕДАКТИРОВАНИЕ РАСПИСАНИЯ БОССОВ
+   ОБЩЕЕ ХРАНИЛИЩЕ (чтобы изменения на сайте видели все посетители)
 
-   anchor       — ЛЮБОЙ реальный момент, когда босс точно заспавнился
-                  (дата+время+смещение часового пояса, формат ISO).
-   intervalHours — через сколько часов респаун повторяется.
+   Никакого стороннего сервиса не нужно — данные хранятся прямо в вашем
+   GitHub-репозитории, в файле bosses.json. Сайт сам его читает и
+   перезаписывает через GitHub API.
 
-   Дальше сайт сам считает все следующие респауны по кругу:
-   anchor, anchor+interval, anchor+interval*2, ...
-   Не нужно вписывать каждый следующий респаун вручную.
+   Как подключить (один раз, 5 минут):
+     1. GitHub → Settings → Developer settings → Personal access tokens
+        → Fine-grained tokens → Generate new token
+     2. Repository access: выберите только Nevermore-timer (не "все репозитории")
+     3. Permissions → Contents → Read and write
+     4. Сгенерируйте токен и скопируйте его (показывается один раз)
+     5. Впишите токен ниже вместо ВСТАВЬТЕ_ТОКЕН
+
+   Файл bosses.json создастся в репозитории автоматически при первом
+   сохранении через сайт (руками создавать не нужно).
+
+   ⚠️ Важно: этот токен будет виден любому, кто откроет исходный код
+   страницы (Ctrl+U в браузере) — это ограничение любого чисто
+   статичного сайта без своего сервера. Поэтому:
+   - токен должен иметь доступ ТОЛЬКО к этому одному репозиторию
+   - права только "Contents: Read and write", ничего больше
+   - если когда-нибудь заметите постороннюю правку — токен можно
+     мгновенно отозвать в тех же настройках GitHub и выпустить новый
 ------------------------------------------------------------------- */
 
-const BOSSES = [
-  { name: "Босс-ивент",              location: "Руины обсерватории", anchor: "2026-07-15T02:00:00+05:00", intervalHours: 3 },
-  { name: "Столкновение с клювозавром", location: "Лассен",          anchor: "2026-07-15T05:30:00+05:00", intervalHours: 6 },
-  { name: "Гости из мира иного",     location: "Аванпост Лассена",   anchor: "2026-07-15T09:00:00+05:00", intervalHours: 8 },
-  { name: "Хроники искателя",        location: "Стоунгард",          anchor: "2026-07-15T12:00:00+05:00", intervalHours: 4 },
+const GITHUB_OWNER = "Nikysha1";
+const GITHUB_REPO = "Nevermore-timer";
+const GITHUB_BRANCH = "main";
+const GITHUB_FILE_PATH = "bosses.json";
+const GITHUB_TOKEN = "ВСТАВЬТЕ_ТОКЕН";
+
+// Пароль для входа в режим редактирования (просто чтобы случайный гость
+// не удалил всё нажатием пары кнопок — это не серьёзная защита, просто фильтр).
+const EDITOR_PASSWORD = "guild123";
+
+const STORAGE_CONFIGURED = GITHUB_TOKEN !== "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";
+let currentFileSha = null; // нужен GitHub API, чтобы обновлять (не создавать заново) файл
+
+const DEFAULT_BOSSES = [
+  { id: "b1", name: "Босс-ивент",              location: "Руины обсерватории", note: "", anchor: "2026-07-15T02:00:00+05:00", intervalHours: 3 },
+  { id: "b2", name: "Столкновение с клювозавром", location: "Лассен",          note: "", anchor: "2026-07-15T05:30:00+05:00", intervalHours: 6 },
+  { id: "b3", name: "Гости из мира иного",     location: "Аванпост Лассена",   note: "", anchor: "2026-07-15T09:00:00+05:00", intervalHours: 8 },
+  { id: "b4", name: "Хроники искателя",        location: "Стоунгард",          note: "", anchor: "2026-07-15T12:00:00+05:00", intervalHours: 4 },
 ];
 
 /* ------------------------------------------------------------------
-   Часовые пояса в переключателе. offsetMinutes — смещение от UTC.
+   Часовые пояса в переключателе.
 ------------------------------------------------------------------- */
 
 const TIMEZONES = [
@@ -201,32 +255,21 @@ const TIMEZONES = [
 ];
 
 /* ------------------------------------------------------------------
-   Настройки погоды. Дождь — известный публичный цикл, не требует калибровки.
-   День/ночь — цикл известен (2ч день + 30мин ночь), но точка отсчёта
-   отличается от сервера к серверу, поэтому калибруется один раз через
-   поле на странице (сохраняется в этом браузере).
+   Погода — откалибровано под сообщённые вами значения:
+   дождь начался 15.07.2026 в 05:15 (Екатеринбург, UTC+5)
+   ночь началась  15.07.2026 в 04:00 (Екатеринбург, UTC+5)
+   Дальше оба цикла считаются от этих точек автоматически, бесконечно.
 ------------------------------------------------------------------- */
 
 const RAIN_CYCLE_MS = 75 * 3600 * 1000;
 const RAIN_WINDOW_MS = 15 * 60 * 1000;
-const RAIN_ANCHOR_MS = 1727685900000; // известная точка начала окна дождя
+const RAIN_ANCHOR_MS = 1784074500000; // 15.07.2026 05:15 UTC+5
 
 const DAY_MS = 2 * 3600 * 1000;
 const NIGHT_MS = 30 * 60 * 1000;
+const NIGHT_ANCHOR_MS = 1784070000000; // 15.07.2026 04:00 UTC+5
 
 /* ------------------------------------------------------------------ */
-
-function loadTZIndex() {
-  const saved = localStorage.getItem('guild_tz_index');
-  return saved !== null ? Number(saved) : 0; // 0 = МСК по умолчанию
-}
-function saveTZIndex(i) { localStorage.setItem('guild_tz_index', String(i)); }
-
-function loadNightAnchor() {
-  const saved = localStorage.getItem('guild_night_anchor_ms');
-  return saved !== null ? Number(saved) : null;
-}
-function saveNightAnchor(ms) { localStorage.setItem('guild_night_anchor_ms', String(ms)); }
 
 function mod(a, n) { return ((a % n) + n) % n; }
 
@@ -264,43 +307,105 @@ function statusFor(msRemaining) {
 
 function rainStatus(nowMs) {
   const since = mod(nowMs - RAIN_ANCHOR_MS, RAIN_CYCLE_MS);
-  if (since < RAIN_WINDOW_MS) {
-    return { raining: true, remainingMs: RAIN_WINDOW_MS - since };
-  }
+  if (since < RAIN_WINDOW_MS) return { raining: true, remainingMs: RAIN_WINDOW_MS - since };
   return { raining: false, remainingMs: RAIN_CYCLE_MS - since };
 }
 
-function nightStatusClean(nowMs, nightAnchorMs) {
+function nightStatus(nowMs) {
   const cycle = DAY_MS + NIGHT_MS;
-  const since = mod(nowMs - nightAnchorMs, cycle);
+  const since = mod(nowMs - NIGHT_ANCHOR_MS, cycle);
   if (since < NIGHT_MS) return { isNight: true, remainingMs: NIGHT_MS - since };
   return { isNight: false, remainingMs: cycle - since };
 }
 
-/* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------
+   Хранилище боссов (GitHub-репозиторий либо режим только для чтения)
+------------------------------------------------------------------- */
+
+let bosses = [];
+let editingId = null;
+let unlocked = false;
+
+const GITHUB_API_BASE = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+
+function utf8ToBase64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function base64ToUtf8(b64) {
+  return decodeURIComponent(escape(atob(b64.replace(/\n/g, ''))));
+}
+
+async function loadBosses() {
+  try {
+    // публичный репозиторий — читать можно без токена
+    const res = await fetch(`${GITHUB_API_BASE}?ref=${GITHUB_BRANCH}`, {
+      headers: { "Accept": "application/vnd.github+json" }
+    });
+    if (res.status === 404) {
+      // файла ещё нет в репозитории — работаем на встроенном примере
+      currentFileSha = null;
+      bosses = DEFAULT_BOSSES.slice();
+      return;
+    }
+    const data = await res.json();
+    currentFileSha = data.sha;
+    const parsed = JSON.parse(base64ToUtf8(data.content));
+    bosses = (parsed && parsed.length) ? parsed : DEFAULT_BOSSES.slice();
+  } catch (e) {
+    bosses = DEFAULT_BOSSES.slice();
+  }
+}
+
+async function saveBosses() {
+  if (!STORAGE_CONFIGURED) {
+    document.getElementById('sync-note').textContent =
+      "Токен GitHub не настроен (GITHUB_TOKEN) — изменения видны только вам и пропадут при перезагрузке страницы.";
+    return;
+  }
+  try {
+    const body = {
+      message: "Обновление расписания боссов через сайт",
+      content: utf8ToBase64(JSON.stringify(bosses, null, 2)),
+      branch: GITHUB_BRANCH
+    };
+    if (currentFileSha) body.sha = currentFileSha;
+
+    const res = await fetch(GITHUB_API_BASE, {
+      method: "PUT",
+      headers: {
+        "Accept": "application/vnd.github+json",
+        "Authorization": `Bearer ${GITHUB_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById('sync-note').textContent = "Ошибка сохранения: " + (data.message || res.status);
+      return;
+    }
+    currentFileSha = data.content.sha;
+    document.getElementById('sync-note').textContent =
+      "Сохранено. GitHub Pages обновит сайт для остальных за 30-60 секунд.";
+  } catch (e) {
+    document.getElementById('sync-note').textContent = "Не удалось сохранить — проверьте интернет-соединение.";
+  }
+}
+
+function genId() { return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+/* ------------------------------------------------------------------
+   UI
+------------------------------------------------------------------- */
 
 const tzSelect = document.getElementById('tz-select');
-let tzIndex = loadTZIndex();
-
+let tzIndex = 0;
 TIMEZONES.forEach((tz, i) => {
   const opt = document.createElement('option');
-  opt.value = i;
-  opt.textContent = tz.label;
+  opt.value = i; opt.textContent = tz.label;
   tzSelect.appendChild(opt);
 });
-tzSelect.value = tzIndex;
-tzSelect.addEventListener('change', () => {
-  tzIndex = Number(tzSelect.value);
-  saveTZIndex(tzIndex);
-});
-
-const nightInput = document.getElementById('night-input');
-const nightSaveBtn = document.getElementById('night-save');
-nightSaveBtn.addEventListener('click', () => {
-  if (!nightInput.value) return;
-  const ms = new Date(nightInput.value).getTime();
-  if (!isNaN(ms)) saveNightAnchor(ms);
-});
+tzSelect.addEventListener('change', () => { tzIndex = Number(tzSelect.value); });
 
 const listEl = document.getElementById('boss-list');
 const ringProgress = document.getElementById('ring-progress');
@@ -311,63 +416,171 @@ const rainValueEl = document.getElementById('rain-value');
 const rainSubEl = document.getElementById('rain-sub');
 const nightValueEl = document.getElementById('night-value');
 const nightSubEl = document.getElementById('night-sub');
+const unlockBtn = document.getElementById('unlock-btn');
+const editPanel = document.getElementById('edit-panel');
+const editPanelTitle = document.getElementById('edit-panel-title');
+const fName = document.getElementById('f-name');
+const fLoc = document.getElementById('f-loc');
+const fNote = document.getElementById('f-note');
+const fInterval = document.getElementById('f-interval');
+const fAnchor = document.getElementById('f-anchor');
 
 const RING_CIRC = 477.5;
 
-const rowEls = BOSSES.map((b, i) => {
-  const row = document.createElement('div');
-  row.className = 'boss-row';
-  row.innerHTML = `
-    <div class="boss-clock"><span class="hh" data-clock="${i}">--:--</span><br>каждые ${b.intervalHours} ч</div>
-    <div class="boss-name-wrap">
-      <p class="boss-name">${b.name}</p>
-      <p class="boss-loc">${b.location}</p>
-    </div>
-    <div class="boss-countdown" data-idx="${i}">--:--</div>
-    <div class="status-pill" data-idx="${i}">—</div>
-  `;
-  listEl.appendChild(row);
-  return row;
+unlockBtn.addEventListener('click', () => {
+  if (unlocked) {
+    unlocked = false;
+    unlockBtn.textContent = '🔒 Редактировать';
+    editPanel.classList.remove('open');
+    renderBossList();
+    return;
+  }
+  const pwd = prompt('Пароль редактора:');
+  if (pwd === EDITOR_PASSWORD) {
+    unlocked = true;
+    unlockBtn.textContent = '🔓 Выйти из редактирования';
+    renderBossList();
+  } else if (pwd !== null) {
+    alert('Неверный пароль.');
+  }
 });
+
+function openForm(boss) {
+  editingId = boss ? boss.id : null;
+  editPanelTitle.textContent = boss ? 'Изменить босса' : 'Добавить босса';
+  fName.value = boss ? boss.name : '';
+  fLoc.value = boss ? boss.location : '';
+  fNote.value = boss ? (boss.note || '') : '';
+  fInterval.value = boss ? boss.intervalHours : '';
+  if (boss) {
+    const d = new Date(boss.anchor);
+    const pad = n => String(n).padStart(2,'0');
+    fAnchor.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } else {
+    fAnchor.value = '';
+  }
+  editPanel.classList.add('open');
+}
+
+document.getElementById('f-cancel').addEventListener('click', () => {
+  editPanel.classList.remove('open');
+  editingId = null;
+});
+
+document.getElementById('f-save').addEventListener('click', async () => {
+  const name = fName.value.trim();
+  const location = fLoc.value.trim();
+  const note = fNote.value.trim();
+  const intervalHours = parseFloat(fInterval.value);
+  const anchorLocal = fAnchor.value;
+
+  if (!name || !location || !anchorLocal || !intervalHours || intervalHours <= 0) {
+    alert('Заполните название, локацию, дату спавна и интервал (> 0).');
+    return;
+  }
+
+  const anchorIso = new Date(anchorLocal).toISOString();
+
+  if (editingId) {
+    const b = bosses.find(x => x.id === editingId);
+    Object.assign(b, { name, location, note, anchor: anchorIso, intervalHours });
+  } else {
+    bosses.push({ id: genId(), name, location, note, anchor: anchorIso, intervalHours });
+  }
+
+  editPanel.classList.remove('open');
+  editingId = null;
+  renderBossList();
+  await saveBosses();
+});
+
+function addFreshAddButton() {
+  const btnRow = document.createElement('div');
+  btnRow.style.marginBottom = '16px';
+  const btn = document.createElement('button');
+  btn.className = 'btn-secondary';
+  btn.textContent = '+ Добавить босса';
+  btn.addEventListener('click', () => openForm(null));
+  btnRow.appendChild(btn);
+  return btnRow;
+}
+
+function renderBossList() {
+  listEl.innerHTML = '';
+
+  if (unlocked) {
+    listEl.appendChild(addFreshAddButton());
+  }
+
+  bosses.forEach((b) => {
+    const row = document.createElement('div');
+    row.className = 'boss-row';
+    row.dataset.id = b.id;
+    row.innerHTML = `
+      <div class="boss-clock"><span class="hh" data-clock="${b.id}">--:--</span><br>каждые ${b.intervalHours} ч</div>
+      <div class="boss-name-wrap">
+        <p class="boss-name">${b.name}</p>
+        <p class="boss-loc">${b.location}</p>
+        ${b.note ? `<p class="boss-note">${b.note}</p>` : ''}
+      </div>
+      <div class="boss-countdown" data-idx="${b.id}">--:--</div>
+      <div class="status-pill" data-idx="${b.id}">—</div>
+      ${unlocked ? `<div class="row-actions">
+        <button class="icon-btn" data-edit="${b.id}" title="Изменить">✏️</button>
+        <button class="icon-btn danger" data-del="${b.id}" title="Удалить">🗑</button>
+      </div>` : '<div></div>'}
+    `;
+    listEl.appendChild(row);
+  });
+
+  listEl.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', () => openForm(bosses.find(x => x.id === btn.dataset.edit)));
+  });
+  listEl.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Удалить это напоминание безвозвратно?')) return;
+      bosses = bosses.filter(x => x.id !== btn.dataset.del);
+      renderBossList();
+      await saveBosses();
+    });
+  });
+}
 
 function tick() {
   const nowMs = Date.now();
   const offsetMinutes = TIMEZONES[tzIndex].offsetMinutes;
-
   let soonest = null;
 
-  BOSSES.forEach((b, i) => {
+  bosses.forEach((b) => {
     const targetMs = nextBossOccurrence(b.anchor, b.intervalHours, nowMs);
     const remaining = targetMs - nowMs;
+    if (soonest === null || remaining < soonest.remaining) soonest = { boss: b, remaining, targetMs };
 
-    if (soonest === null || remaining < soonest.remaining) {
-      soonest = { boss: b, remaining, targetMs };
+    const clockEl = listEl.querySelector(`[data-clock="${b.id}"]`);
+    if (clockEl) clockEl.textContent = fmtClockInTZ(targetMs, offsetMinutes);
+    const countdownEl = listEl.querySelector(`.boss-countdown[data-idx="${b.id}"]`);
+    const pillEl = listEl.querySelector(`.status-pill[data-idx="${b.id}"]`);
+    if (countdownEl) countdownEl.textContent = fmtCountdown(remaining);
+    if (pillEl) {
+      const st = statusFor(remaining);
+      pillEl.className = 'status-pill status-' + st;
+      pillEl.textContent = st === 'live' ? 'скоро!' : (st === 'soon' ? 'приближается' : 'ожидание');
     }
-
-    const clockEl = listEl.querySelector(`[data-clock="${i}"]`);
-    clockEl.textContent = fmtClockInTZ(targetMs, offsetMinutes);
-
-    const countdownEl = listEl.querySelector(`.boss-countdown[data-idx="${i}"]`);
-    const pillEl = listEl.querySelector(`.status-pill[data-idx="${i}"]`);
-    countdownEl.textContent = fmtCountdown(remaining);
-
-    const st = statusFor(remaining);
-    pillEl.className = 'status-pill status-' + st;
-    pillEl.textContent = st === 'live' ? 'скоро!' : (st === 'soon' ? 'приближается' : 'ожидание');
   });
 
   if (soonest) {
     nextName.textContent = soonest.boss.name;
     nextLoc.textContent = soonest.boss.location + ' · каждые ' + soonest.boss.intervalHours + ' ч · в ' + fmtClockInTZ(soonest.targetMs, offsetMinutes);
     ringTimer.textContent = fmtCountdown(soonest.remaining);
-
     const cycleMs = soonest.boss.intervalHours * 3600 * 1000;
     const fraction = 1 - Math.min(soonest.remaining / cycleMs, 1);
     ringProgress.style.strokeDashoffset = String(RING_CIRC * (1 - fraction));
     ringProgress.classList.toggle('is-live', soonest.remaining <= 5 * 60 * 1000);
+  } else {
+    nextName.textContent = 'Нет активных боссов';
+    nextLoc.textContent = 'Добавьте боссов через режим редактирования';
   }
 
-  // дождь
   const rain = rainStatus(nowMs);
   if (rain.raining) {
     rainValueEl.textContent = 'идёт · ' + fmtCountdown(rain.remainingMs);
@@ -377,25 +590,26 @@ function tick() {
     rainSubEl.textContent = 'до следующего окна дождя (15 минут)';
   }
 
-  // день/ночь
-  const nightAnchorMs = loadNightAnchor();
-  if (nightAnchorMs === null) {
-    nightValueEl.textContent = 'не откалибровано';
-    nightSubEl.textContent = 'укажите время начала ближайшей ночи один раз — дальше цикл посчитается сам';
+  const ns = nightStatus(nowMs);
+  if (ns.isNight) {
+    nightValueEl.textContent = 'ночь · ' + fmtCountdown(ns.remainingMs);
+    nightSubEl.textContent = 'день начнётся через ' + fmtCountdown(ns.remainingMs);
   } else {
-    const ns = nightStatusClean(nowMs, nightAnchorMs);
-    if (ns.isNight) {
-      nightValueEl.textContent = 'ночь · ' + fmtCountdown(ns.remainingMs);
-      nightSubEl.textContent = 'день начнётся через ' + fmtCountdown(ns.remainingMs);
-    } else {
-      nightValueEl.textContent = 'день · ' + fmtCountdown(ns.remainingMs);
-      nightSubEl.textContent = 'ночь начнётся через ' + fmtCountdown(ns.remainingMs);
-    }
+    nightValueEl.textContent = 'день · ' + fmtCountdown(ns.remainingMs);
+    nightSubEl.textContent = 'ночь начнётся через ' + fmtCountdown(ns.remainingMs);
   }
 }
 
-tick();
-setInterval(tick, 1000);
+(async function init() {
+  await loadBosses();
+  if (!STORAGE_CONFIGURED) {
+    document.getElementById('sync-note').textContent =
+      "Режим только для чтения: настройте GITHUB_TOKEN в коде, чтобы изменения сохранялись для всех.";
+  }
+  renderBossList();
+  tick();
+  setInterval(tick, 1000);
+})();
 </script>
 
 </body>
