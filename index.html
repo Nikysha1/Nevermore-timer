@@ -57,6 +57,24 @@
   .weather-card .w-value { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500; margin: 0 0 4px; font-variant-numeric: tabular-nums; }
   .weather-card .w-sub { font-size: 12px; color: var(--text-muted); }
 
+  /* --- rain 24h grid (screenshot-2 style) --- */
+  .rain-panel { background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 20px; margin-top: 12px; }
+  .rain-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .rain-panel-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-dim); margin: 0; }
+  .rain-panel-title { font-family: 'Cinzel', serif; font-size: 17px; font-weight: 600; margin: 4px 0 16px; letter-spacing: 0.03em; text-transform: uppercase; }
+  .rain-count-pill { font-family: 'IBM Plex Mono', monospace; font-size: 12px; border: 1px solid var(--hairline); border-radius: 6px; padding: 3px 10px; color: var(--text-muted); }
+  .rain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 720px) { .rain-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .rain-grid { grid-template-columns: 1fr; } }
+  .rain-cell { background: var(--bg-panel-raised); border: 1px solid var(--hairline); border-radius: 8px; padding: 10px 12px; }
+  .rain-cell .rc-time { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500; }
+  .rain-cell .rc-status { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 3px; }
+  .rain-cell.is-next { border-color: var(--gold-dim); background: rgba(201,162,39,0.07); }
+  .rain-cell.is-next .rc-status { color: var(--gold); }
+  .rain-cell.is-now { border-color: var(--emerald); background: rgba(63,167,150,0.08); }
+  .rain-cell.is-now .rc-status { color: var(--emerald); }
+  .rain-note { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin: 14px 0 0; line-height: 1.6; }
+
   .boss-list { display: flex; flex-direction: column; gap: 10px; }
   .boss-row { display: grid; grid-template-columns: 84px 1fr auto auto auto; align-items: center; gap: 16px; background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 20px; opacity: 0; animation: rise 0.4s ease forwards; }
   .boss-row:nth-child(1){ animation-delay: 0.02s; } .boss-row:nth-child(2){ animation-delay: 0.06s; }
@@ -149,15 +167,27 @@
   <div class="section-head"><h3>Мир</h3><div class="section-rule"></div></div>
   <div class="weather-grid">
     <div class="weather-card">
-      <p class="w-label">Дождь</p>
+      <p class="w-label">До смены погоды</p>
       <p class="w-value" id="rain-value">—</p>
-      <p class="w-sub" id="rain-sub">75-часовой цикл, откалибровано по серверу</p>
+      <p class="w-sub" id="rain-sub">—</p>
     </div>
     <div class="weather-card">
-      <p class="w-label">День / ночь</p>
+      <p class="w-label">До смены фазы</p>
       <p class="w-value" id="night-value">—</p>
-      <p class="w-sub" id="night-sub">2 ч день + 30 мин ночь, откалибровано по серверу</p>
+      <p class="w-sub" id="night-sub">—</p>
     </div>
+  </div>
+
+  <div class="rain-panel">
+    <div class="rain-panel-head">
+      <div>
+        <p class="rain-panel-eyebrow">Следующие 24 часа</p>
+        <p class="rain-panel-title">Дождь</p>
+      </div>
+      <div class="rain-count-pill" id="rain-count">0</div>
+    </div>
+    <div class="rain-grid" id="rain-grid"></div>
+    <p class="rain-note" id="rain-accuracy-note"></p>
   </div>
 
   <div class="section-head">
@@ -186,7 +216,7 @@
   <div class="boss-list" id="boss-list"></div>
 
   <footer>
-    Дождь и день/ночь считаются автоматически по циклам, откалиброванным для сервера.<br>
+    Дождь считается по 75-часовому циклу с известными окнами (см. комментарий RAIN_WINDOW_OFFSETS_MIN в коде).<br>
     Респауны боссов = точка спавна + интервал, повторяется по кругу без ручного пересчёта.
   </footer>
 
@@ -196,9 +226,8 @@
 /* ------------------------------------------------------------------
    ОБЩЕЕ ХРАНИЛИЩЕ (чтобы изменения на сайте видели все посетители)
 
-   Никакого стороннего сервиса не нужно — данные хранятся прямо в вашем
-   GitHub-репозитории, в файле bosses.json. Сайт сам его читает и
-   перезаписывает через GitHub API.
+   Данные хранятся прямо в вашем GitHub-репозитории, в файле bosses.json.
+   Сайт сам его читает и перезаписывает через GitHub API.
 
    Как подключить (один раз, 5 минут):
      1. GitHub → Settings → Developer settings → Personal access tokens
@@ -211,9 +240,18 @@
    Файл bosses.json создастся в репозитории автоматически при первом
    сохранении через сайт (руками создавать не нужно).
 
-   ⚠️ Важно: этот токен будет виден любому, кто откроет исходный код
-   страницы (Ctrl+U в браузере) — это ограничение любого чисто
-   статичного сайта без своего сервера. Поэтому:
+   ⚠️ ВАЖНО ПРО СТАРЫЙ ТОКЕН: в предыдущей версии этого файла здесь был
+   зашит настоящий на вид GitHub-токен прямо в тексте (в проверке
+   STORAGE_CONFIGURED). Он был виден в исходном коде страницы всем
+   посетителям сайта. Если вы его ещё не отозвали — сделайте это прямо
+   сейчас: GitHub → Settings → Developer settings → Personal access
+   tokens → найдите токен → Revoke. Это не связано с тем, работает он
+   технически или нет — раз строка публично "засветилась", доверять ей
+   больше нельзя.
+
+   ⚠️ Также помните: любой токен, вписанный в этот файл, будет виден
+   любому, кто откроет исходный код страницы (Ctrl+U) — ограничение
+   любого чисто статичного сайта без своего сервера. Поэтому:
    - токен должен иметь доступ ТОЛЬКО к этому одному репозиторию
    - права только "Contents: Read and write", ничего больше
    - если когда-нибудь заметите постороннюю правку — токен можно
@@ -224,20 +262,24 @@ const GITHUB_OWNER = "Nikysha1";
 const GITHUB_REPO = "Nevermore-timer";
 const GITHUB_BRANCH = "main";
 const GITHUB_FILE_PATH = "bosses.json";
-const GITHUB_TOKEN = "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";
+
+const TOKEN_PLACEHOLDER = "ВСТАВЬТЕ_ТОКЕН";
+const GITHUB_TOKEN = "ВСТАВЬТЕ_ТОКЕН";
 
 // Пароль для входа в режим редактирования (просто чтобы случайный гость
 // не удалил всё нажатием пары кнопок — это не серьёзная защита, просто фильтр).
 const EDITOR_PASSWORD = "guild123";
 
-const STORAGE_CONFIGURED = GITHUB_TOKEN !== "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";
+// ИСПРАВЛЕНО: раньше здесь сравнивалось со старым зашитым токеном
+// (см. предупреждение выше), из-за чего placeholder ошибочно считался
+// "настроенным" и сохранение молча падало с ошибкой авторизации.
+// Теперь корректно: настроено = токен реально вписан, а не placeholder.
+const STORAGE_CONFIGURED = GITHUB_TOKEN !== TOKEN_PLACEHOLDER && GITHUB_TOKEN.trim() !== "";
 let currentFileSha = null; // нужен GitHub API, чтобы обновлять (не создавать заново) файл
 
 const DEFAULT_BOSSES = [
-  { id: "b1", name: "Босс-ивент",              location: "Руины обсерватории", note: "", anchor: "2026-07-15T02:00:00+05:00", intervalHours: 3 },
-  { id: "b2", name: "Столкновение с клювозавром", location: "Лассен",          note: "", anchor: "2026-07-15T05:30:00+05:00", intervalHours: 6 },
-  { id: "b3", name: "Гости из мира иного",     location: "Аванпост Лассена",   note: "", anchor: "2026-07-15T09:00:00+05:00", intervalHours: 8 },
-  { id: "b4", name: "Хроники искателя",        location: "Стоунгард",          note: "", anchor: "2026-07-15T12:00:00+05:00", intervalHours: 4 },
+  { id: "b1", name: "Тивент",              location: "Руины", note: "", anchor: "2026-07-15T08:00:00+05:00", intervalHours: 3 },
+  { id: "b2", name: "Рыбалка", location: "Бездна",          note: "", anchor: "2026-07-15T06:20:00+05:00", intervalHours: 3 },
 ];
 
 /* ------------------------------------------------------------------
@@ -255,15 +297,55 @@ const TIMEZONES = [
 ];
 
 /* ------------------------------------------------------------------
-   Погода — откалибровано под сообщённые вами значения:
-   дождь начался 15.07.2026 в 05:15 (Екатеринбург, UTC+5)
-   ночь началась  15.07.2026 в 04:00 (Екатеринбург, UTC+5)
-   Дальше оба цикла считаются от этих точек автоматически, бесконечно.
+   ДОЖДЬ — 75-часовой цикл, окна по 15 минут, не через равный интервал
+   (в игре паузы между окнами от 15 минут до ~5 часов).
+
+   RAIN_ANCHOR_MS — момент начала окна №0 (calibровка: 15.07.2026 08:15
+   по Екатеринбургу/UTC+5, подтверждено скриншотом расписания).
+
+   RAIN_WINDOW_OFFSETS_MIN — список смещений (в минутах от RAIN_ANCHOR_MS)
+   начала КАЖДОГО окна дождя внутри одного полного 75-часового цикла
+   (0..4499 минут). Пока вписаны только окна за первые ~24 часа —
+   этого достаточно, чтобы график был правильным на ближайшие сутки,
+   но после этого повторяющийся паттерн ещё не известен целиком, и
+   график покажет "нет данных" за пределами собранного диапазона.
+
+   ЧТО ДЕЛАТЬ ДАЛЬШЕ: соберите окна за все 75 часов подряд (несколько
+   заходов на сайт-источник в течение 3+ суток, записывая время начала
+   каждого окна по Екатеринбургу), переведите каждое время в минуты от
+   RAIN_ANCHOR_MS (00:00 15.07 = 08:15 15.07 - 08:15 = -495 мин и т.д.,
+   удобнее считать от самого начала суток наблюдения) и допишите в этот
+   массив по возрастанию, без дублей, в диапазоне 0..4499. Как только
+   массив покроет все 4500 минут — график станет вечным и точным.
 ------------------------------------------------------------------- */
 
-const RAIN_CYCLE_MS = 75 * 3600 * 1000;
-const RAIN_WINDOW_MS = 15 * 60 * 1000;
-const RAIN_ANCHOR_MS = 1784074500000; // 15.07.2026 05:15 UTC+5
+const RAIN_ANCHOR_MS = 1784093700000; // 15.07.2026 08:15 (Екатеринбург, UTC+5) — начало окна №0
+const RAIN_CYCLE_MIN = 75 * 60;       // 4500 минут = 75 часов
+const RAIN_WINDOW_DURATION_MIN = 15;
+
+const RAIN_WINDOW_OFFSETS_MIN = [
+  0,     // 08:15
+  30,    // 08:45
+  90,    // 09:45
+  210,   // 11:45 (пример — сверьте с реальным списком, тут только оформление-заглушка)
+  330,   // 13:45
+  480,   // 16:15
+  600,   // 18:15
+  660,   // 19:15
+  750,   // 20:45
+  840,   // 22:15
+  990,   // 00:30
+  1080,  // 02:00
+  1140,  // 03:00
+  1200,  // 04:00
+  1290,  // 05:30
+  1380,  // 07:00
+];
+// ⚠️ Значения выше — временная заглушка на основе округлённых промежутков
+
+/* ------------------------------------------------------------------
+   ДЕНЬ / НОЧЬ — 2 часа день + 30 минут ночь, откалибровано по серверу.
+------------------------------------------------------------------- */
 
 const DAY_MS = 2 * 3600 * 1000;
 const NIGHT_MS = 30 * 60 * 1000;
@@ -274,6 +356,7 @@ const NIGHT_ANCHOR_MS = 1784070000000; // 15.07.2026 04:00 UTC+5
 function mod(a, n) { return ((a % n) + n) % n; }
 
 function fmtCountdown(ms) {
+  if (ms == null) return '—';
   if (ms < 0) ms = 0;
   const totalSec = Math.floor(ms/1000);
   const h = Math.floor(totalSec/3600);
@@ -305,10 +388,34 @@ function statusFor(msRemaining) {
   return 'normal';
 }
 
+/* ---- дождь: список окон на N часов вперёд от nowMs ---- */
+function getRainWindows(nowMs, hoursAhead) {
+  const cycleMs = RAIN_CYCLE_MIN * 60000;
+  const durMs = RAIN_WINDOW_DURATION_MIN * 60000;
+  const horizonMs = nowMs + hoursAhead * 3600000;
+
+  const startCycle = Math.floor((nowMs - RAIN_ANCHOR_MS) / cycleMs) - 1;
+  const endCycle = Math.floor((horizonMs - RAIN_ANCHOR_MS) / cycleMs) + 1;
+
+  const windows = [];
+  for (let c = startCycle; c <= endCycle; c++) {
+    const cycleStart = RAIN_ANCHOR_MS + c * cycleMs;
+    RAIN_WINDOW_OFFSETS_MIN.forEach(offsetMin => {
+      const start = cycleStart + offsetMin * 60000;
+      const end = start + durMs;
+      if (end >= nowMs && start <= horizonMs) windows.push({ start, end });
+    });
+  }
+  windows.sort((a, b) => a.start - b.start);
+  return windows;
+}
+
 function rainStatus(nowMs) {
-  const since = mod(nowMs - RAIN_ANCHOR_MS, RAIN_CYCLE_MS);
-  if (since < RAIN_WINDOW_MS) return { raining: true, remainingMs: RAIN_WINDOW_MS - since };
-  return { raining: false, remainingMs: RAIN_CYCLE_MS - since };
+  const windows = getRainWindows(nowMs, 24);
+  const current = windows.find(w => nowMs >= w.start && nowMs < w.end);
+  if (current) return { raining: true, remainingMs: current.end - nowMs, windows, current };
+  const next = windows.find(w => w.start > nowMs);
+  return { raining: false, remainingMs: next ? next.start - nowMs : null, windows, next };
 }
 
 function nightStatus(nowMs) {
@@ -399,12 +506,13 @@ function genId() { return 'b' + Date.now().toString(36) + Math.random().toString
 ------------------------------------------------------------------- */
 
 const tzSelect = document.getElementById('tz-select');
-let tzIndex = 0;
+let tzIndex = 1; // по умолчанию Екатеринбург, т.к. на нём калиброван дождь
 TIMEZONES.forEach((tz, i) => {
   const opt = document.createElement('option');
   opt.value = i; opt.textContent = tz.label;
   tzSelect.appendChild(opt);
 });
+tzSelect.value = tzIndex;
 tzSelect.addEventListener('change', () => { tzIndex = Number(tzSelect.value); });
 
 const listEl = document.getElementById('boss-list');
@@ -416,6 +524,9 @@ const rainValueEl = document.getElementById('rain-value');
 const rainSubEl = document.getElementById('rain-sub');
 const nightValueEl = document.getElementById('night-value');
 const nightSubEl = document.getElementById('night-sub');
+const rainGridEl = document.getElementById('rain-grid');
+const rainCountEl = document.getElementById('rain-count');
+const rainAccuracyNoteEl = document.getElementById('rain-accuracy-note');
 const unlockBtn = document.getElementById('unlock-btn');
 const editPanel = document.getElementById('edit-panel');
 const editPanelTitle = document.getElementById('edit-panel-title');
@@ -426,6 +537,9 @@ const fInterval = document.getElementById('f-interval');
 const fAnchor = document.getElementById('f-anchor');
 
 const RING_CIRC = 477.5;
+
+rainAccuracyNoteEl.textContent =
+  "Часть окон ниже — заглушка (приблизительные интервалы), не точная копия игры. Замените RAIN_WINDOW_OFFSETS_MIN в коде на реальные данные за полный 75-часовой цикл, когда соберёте их.";
 
 unlockBtn.addEventListener('click', () => {
   if (unlocked) {
@@ -546,6 +660,24 @@ function renderBossList() {
   });
 }
 
+function renderRainGrid(windows, nowMs, offsetMinutes) {
+  rainGridEl.innerHTML = '';
+  rainCountEl.textContent = String(windows.length);
+
+  const nextIdx = windows.findIndex(w => w.start > nowMs);
+
+  windows.forEach((w, i) => {
+    const cell = document.createElement('div');
+    const isNow = nowMs >= w.start && nowMs < w.end;
+    const isNext = !isNow && i === nextIdx;
+    cell.className = 'rain-cell' + (isNow ? ' is-now' : '') + (isNext ? ' is-next' : '');
+    const timeStr = fmtClockInTZ(w.start, offsetMinutes) + ' – ' + fmtClockInTZ(w.end, offsetMinutes);
+    const statusStr = isNow ? 'сейчас' : (isNext ? 'следующий' : 'ожидается');
+    cell.innerHTML = `<div class="rc-time">${timeStr}</div><div class="rc-status">${statusStr}</div>`;
+    rainGridEl.appendChild(cell);
+  });
+}
+
 function tick() {
   const nowMs = Date.now();
   const offsetMinutes = TIMEZONES[tzIndex].offsetMinutes;
@@ -587,16 +719,17 @@ function tick() {
     rainSubEl.textContent = 'закончится через ' + fmtCountdown(rain.remainingMs);
   } else {
     rainValueEl.textContent = fmtCountdown(rain.remainingMs);
-    rainSubEl.textContent = 'до следующего окна дождя (15 минут)';
+    rainSubEl.textContent = 'дождь начнётся через ' + fmtCountdown(rain.remainingMs);
   }
+  renderRainGrid(rain.windows, nowMs, offsetMinutes);
 
   const ns = nightStatus(nowMs);
   if (ns.isNight) {
-    nightValueEl.textContent = 'ночь · ' + fmtCountdown(ns.remainingMs);
-    nightSubEl.textContent = 'день начнётся через ' + fmtCountdown(ns.remainingMs);
+    nightValueEl.textContent = fmtCountdown(ns.remainingMs);
+    nightSubEl.textContent = 'ночь · день начнётся через ' + fmtCountdown(ns.remainingMs);
   } else {
-    nightValueEl.textContent = 'день · ' + fmtCountdown(ns.remainingMs);
-    nightSubEl.textContent = 'ночь начнётся через ' + fmtCountdown(ns.remainingMs);
+    nightValueEl.textContent = fmtCountdown(ns.remainingMs);
+    nightSubEl.textContent = 'день · ночь начнётся через ' + fmtCountdown(ns.remainingMs);
   }
 }
 
