@@ -2,748 +2,941 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Расписание боссов — Гильдия</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Часовой — таймеры событий Throne and Liberty</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg-void: #0b0e14; --bg-panel: #131826; --bg-panel-raised: #1a2033; --hairline: #262d42;
-    --gold: #c9a227; --gold-dim: #8c6d3f; --emerald: #3fa796; --crimson: #b2434f;
-    --text-primary: #ece5d3; --text-muted: #8b90a8; --radius: 10px;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg-void); color: var(--text-primary); font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; }
-  body { background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(201,162,39,0.10), transparent 60%), repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px); }
-  a { color: inherit; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 80px; }
-
-  header { padding: 40px 0 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--hairline); margin-bottom: 36px; }
-  .brand-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dim); margin: 0 0 6px; }
-  .brand-title { font-family: 'Cinzel', serif; font-weight: 600; font-size: 26px; margin: 0 0 20px; letter-spacing: 0.01em; }
-
-  .tz-picker { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-bottom: 20px; }
-  .tz-picker label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
-  .tz-picker select { background: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--hairline); border-radius: 6px; padding: 8px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; cursor: pointer; }
-  .tz-picker select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-
-  .hero { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; padding: 8px 0 44px; }
-  .ring-box { position: relative; width: 168px; height: 168px; flex-shrink: 0; }
-  .ring-box svg { transform: rotate(-90deg); }
-  .ring-track { fill: none; stroke: var(--hairline); stroke-width: 6; }
-  .ring-progress { fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 6px rgba(201,162,39,0.5)); }
-  .ring-progress.is-live { stroke: var(--emerald); filter: drop-shadow(0 0 8px rgba(63,167,150,0.6)); }
-  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-  .ring-timer { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
-  .ring-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-top: 4px; }
-  .hero-info .kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-dim); margin: 0 0 8px; }
-  .hero-info h2 { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; margin: 0 0 10px; }
-  .hero-info p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
-
-  .section-head { display: flex; align-items: center; gap: 14px; margin: 44px 0 18px; }
-  .section-head h3 { font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin: 0; white-space: nowrap; }
-  .section-rule { flex: 1; height: 1px; background: var(--hairline); }
-  .section-head .head-btn {
-    background: none; border: 1px solid var(--hairline); color: var(--text-muted); border-radius: 6px;
-    padding: 5px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; cursor: pointer; white-space: nowrap;
-  }
-  .section-head .head-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
-
-  .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 640px) { .weather-grid { grid-template-columns: 1fr; } }
-  .weather-card { background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 18px 20px; }
-  .weather-card .w-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-dim); margin: 0 0 8px; }
-  .weather-card .w-value { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500; margin: 0 0 4px; font-variant-numeric: tabular-nums; }
-  .weather-card .w-sub { font-size: 12px; color: var(--text-muted); }
-
-  /* --- rain 24h grid (screenshot-2 style) --- */
-  .rain-panel { background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 20px; margin-top: 12px; }
-  .rain-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-  .rain-panel-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-dim); margin: 0; }
-  .rain-panel-title { font-family: 'Cinzel', serif; font-size: 17px; font-weight: 600; margin: 4px 0 16px; letter-spacing: 0.03em; text-transform: uppercase; }
-  .rain-count-pill { font-family: 'IBM Plex Mono', monospace; font-size: 12px; border: 1px solid var(--hairline); border-radius: 6px; padding: 3px 10px; color: var(--text-muted); }
-  .rain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  @media (max-width: 720px) { .rain-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 460px) { .rain-grid { grid-template-columns: 1fr; } }
-  .rain-cell { background: var(--bg-panel-raised); border: 1px solid var(--hairline); border-radius: 8px; padding: 10px 12px; }
-  .rain-cell .rc-time { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500; }
-  .rain-cell .rc-status { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 3px; }
-  .rain-cell.is-next { border-color: var(--gold-dim); background: rgba(201,162,39,0.07); }
-  .rain-cell.is-next .rc-status { color: var(--gold); }
-  .rain-cell.is-now { border-color: var(--emerald); background: rgba(63,167,150,0.08); }
-  .rain-cell.is-now .rc-status { color: var(--emerald); }
-  .rain-note { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin: 14px 0 0; line-height: 1.6; }
-
-  .boss-list { display: flex; flex-direction: column; gap: 10px; }
-  .boss-row { display: grid; grid-template-columns: 84px 1fr auto auto auto; align-items: center; gap: 16px; background: var(--bg-panel); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 20px; opacity: 0; animation: rise 0.4s ease forwards; }
-  .boss-row:nth-child(1){ animation-delay: 0.02s; } .boss-row:nth-child(2){ animation-delay: 0.06s; }
-  .boss-row:nth-child(3){ animation-delay: 0.10s; } .boss-row:nth-child(4){ animation-delay: 0.14s; }
-  .boss-row:nth-child(5){ animation-delay: 0.18s; }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce) { .boss-row { animation: none; opacity: 1; } .ring-progress { transition: none; } }
-
-  .boss-clock { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--text-muted); }
-  .boss-clock .hh { font-size: 17px; color: var(--text-primary); font-weight: 500; }
-  .boss-name-wrap { min-width: 0; }
-  .boss-name { font-weight: 600; font-size: 15px; margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .boss-loc { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .boss-note { font-size: 11px; color: var(--gold-dim); font-style: italic; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .boss-countdown { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-variant-numeric: tabular-nums; text-align: right; min-width: 78px; }
-  .status-pill { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border-radius: 100px; white-space: nowrap; text-align: center; }
-  .status-live { background: rgba(63,167,150,0.14); color: var(--emerald); border: 1px solid rgba(63,167,150,0.4); animation: pulse 2s ease-in-out infinite; }
-  .status-soon { background: rgba(178,67,79,0.14); color: #d98e96; border: 1px solid rgba(178,67,79,0.4); }
-  .status-normal { background: rgba(140,109,63,0.12); color: var(--gold-dim); border: 1px solid rgba(140,109,63,0.35); }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-
-  .row-actions { display: flex; gap: 6px; }
-  .icon-btn { background: none; border: 1px solid var(--hairline); color: var(--text-muted); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
-  .icon-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
-  .icon-btn.danger:hover { border-color: var(--crimson); color: #e08d97; }
-
-  @media (max-width: 720px) {
-    .boss-row { grid-template-columns: 1fr auto; grid-template-areas: "name status" "clock countdown" "actions actions"; row-gap: 8px; }
-    .boss-clock { grid-area: clock; } .boss-name-wrap { grid-area: name; }
-    .status-pill { grid-area: status; justify-self: end; } .boss-countdown { grid-area: countdown; text-align: right; }
-    .row-actions { grid-area: actions; justify-content: flex-end; }
-    .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+    --bg-0:#0c0c13;
+    --bg-1:#121219;
+    --card:#16161f;
+    --card-hover:#1b1b27;
+    --card-border:rgba(139,110,255,0.16);
+    --violet:#8b6eff;
+    --violet-soft:rgba(139,110,255,0.35);
+    --blue:#4f7fff;
+    --text:#f1eef9;
+    --text-dim:#9691ad;
+    --text-faint:#615d78;
+    --warn:#f5a524;
+    --warn-glow:rgba(245,165,36,0.4);
+    --danger:#ef4462;
+    --danger-glow:rgba(239,68,98,0.45);
+    --ring-track:rgba(255,255,255,0.06);
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow-card:0 10px 30px -12px rgba(0,0,0,0.55);
+    --shadow-hero:0 25px 70px -20px rgba(76,45,196,0.45);
   }
 
-  /* --- edit form --- */
-  .edit-panel { display: none; background: var(--bg-panel-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
-  .edit-panel.open { display: block; }
-  .edit-panel h4 { font-family: 'Cinzel', serif; font-size: 14px; margin: 0 0 14px; letter-spacing: 0.04em; text-transform: uppercase; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
-  .form-field { display: flex; flex-direction: column; gap: 5px; }
-  .form-field label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
-  .form-field input {
-    background: var(--bg-void); color: var(--text-primary); border: 1px solid var(--hairline); border-radius: 6px;
-    padding: 8px 10px; font-family: 'Manrope', sans-serif; font-size: 13px;
-  }
-  .form-field input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
-  .form-actions { display: flex; gap: 10px; }
-  .btn-primary { background: var(--gold-dim); color: var(--bg-void); border: none; border-radius: 6px; padding: 9px 18px; font-weight: 700; font-size: 13px; cursor: pointer; }
-  .btn-primary:hover { background: var(--gold); }
-  .btn-secondary { background: none; border: 1px solid var(--hairline); color: var(--text-muted); border-radius: 6px; padding: 9px 18px; font-size: 13px; cursor: pointer; }
-  .btn-secondary:hover { color: var(--text-primary); }
-  .sync-note { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); margin: -8px 0 16px; }
+  *{box-sizing:border-box; margin:0; padding:0;}
 
-  footer { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--hairline); font-size: 12px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; line-height: 1.7; }
+  html{ -webkit-tap-highlight-color:transparent; }
+
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(1100px 620px at 12% -10%, rgba(79,127,255,0.16), transparent 60%),
+      radial-gradient(900px 700px at 100% 0%, rgba(139,110,255,0.14), transparent 55%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-0) 40%);
+    color:var(--text);
+    font-family:'Inter', system-ui, sans-serif;
+    padding-bottom:80px;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:28px 20px 0;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:26px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand-mark{
+    width:40px; height:40px;
+    border-radius:12px;
+    background:linear-gradient(135deg, var(--violet), var(--blue));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px -6px var(--violet-soft);
+    flex-shrink:0;
+  }
+  .brand-mark svg{ width:22px; height:22px; }
+
+  .brand-text .title{
+    font-family:'Chakra Petch', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:0.02em;
+    line-height:1.1;
+  }
+  .brand-text .subtitle{
+    font-size:12px;
+    color:var(--text-dim);
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+
+  .world-clocks{
+    display:flex;
+    gap:10px;
+  }
+  .clock-pill{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:999px;
+    padding:8px 16px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .clock-pill .zone{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    color:var(--text-dim);
+    letter-spacing:0.06em;
+  }
+  .clock-pill .time{
+    font-size:14px;
+    font-weight:700;
+    color:var(--text);
+    font-variant-numeric:tabular-nums;
+  }
+  .clock-pill .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--violet);
+    box-shadow:0 0 8px 1px var(--violet-soft);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    background:linear-gradient(160deg, #1a1626 0%, #14121e 55%, #100f18 100%);
+    border:1px solid var(--card-border);
+    border-radius:28px;
+    padding:34px 30px;
+    box-shadow:var(--shadow-hero);
+    overflow:hidden;
+    margin-bottom:34px;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(420px 260px at 85% -10%, rgba(139,110,255,0.22), transparent 60%),
+      radial-gradient(360px 240px at -5% 110%, rgba(79,127,255,0.16), transparent 55%);
+    pointer-events:none;
+  }
+
+  .hero-inner{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:36px;
+    flex-wrap:wrap;
+  }
+
+  .hero-ring-box{
+    position:relative;
+    width:180px; height:180px;
+    flex-shrink:0;
+  }
+  .hero-ring-box svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .ring-track{ stroke:var(--ring-track); }
+  .ring-progress{
+    stroke:url(#ringGradient);
+    stroke-linecap:round;
+    transition:stroke 0.4s ease;
+    filter:drop-shadow(0 0 10px rgba(139,110,255,0.55));
+  }
+  .hero-ring-label{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+    text-align:center;
+  }
+  .hero-ring-label .icon{ font-size:26px; margin-bottom:2px; }
+
+  .hero-body{ flex:1; min-width:240px; }
+  .hero-eyebrow{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    color:var(--violet);
+    font-weight:700;
+    margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .hero-eyebrow .pulse{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--violet);
+    box-shadow:0 0 0 0 var(--violet-soft);
+    animation:pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot{
+    0%{ box-shadow:0 0 0 0 rgba(139,110,255,0.55); }
+    70%{ box-shadow:0 0 0 9px rgba(139,110,255,0); }
+    100%{ box-shadow:0 0 0 0 rgba(139,110,255,0); }
+  }
+
+  .hero-name{
+    font-family:'Chakra Petch', sans-serif;
+    font-weight:700;
+    font-size:clamp(28px, 4vw, 42px);
+    line-height:1.05;
+    margin-bottom:14px;
+  }
+
+  .hero-countdown{
+    font-family:'JetBrains Mono', monospace;
+    font-size:clamp(38px, 6vw, 58px);
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:0.01em;
+    background:linear-gradient(90deg, #fff, #d9d3ff);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin-bottom:14px;
+  }
+
+  .hero-meta{
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .hero-meta strong{ color:var(--text); font-weight:600; }
+
+  .hero-empty{ color:var(--text-dim); font-size:15px; }
+
+  /* ---------- Controls row ---------- */
+  .controls-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  .section-title{
+    font-family:'Chakra Petch', sans-serif;
+    font-size:18px;
+    font-weight:600;
+    letter-spacing:0.01em;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+  .section-title .count{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-dim);
+    background:var(--card);
+    border:1px solid var(--card-border);
+    padding:2px 9px;
+    border-radius:999px;
+  }
+
+  .btn{
+    border:none;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    border-radius:12px;
+    padding:10px 16px;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{
+    background:linear-gradient(135deg, var(--violet), var(--blue));
+    color:#fff;
+    box-shadow:0 8px 20px -8px var(--violet-soft);
+  }
+  .btn-primary:hover{ box-shadow:0 10px 26px -8px var(--violet-soft); }
+  .btn-ghost{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    color:var(--text-dim);
+  }
+  .btn-ghost:hover{ color:var(--text); background:var(--card-hover); }
+  .btn-icon{
+    width:34px; height:34px; padding:0;
+    justify-content:center;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    color:var(--text-dim);
+    border-radius:10px;
+  }
+  .btn-icon:hover{ color:var(--text); background:var(--card-hover); }
+  .btn-icon.danger:hover{ color:var(--danger); border-color:var(--danger-glow); }
+
+  /* ---------- Grid of events ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:16px;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius-lg);
+    padding:20px;
+    box-shadow:var(--shadow-card);
+    transition:border-color 0.3s ease, transform 0.2s ease, background 0.3s ease;
+    overflow:hidden;
+  }
+  .card:hover{ transform:translateY(-2px); background:var(--card-hover); }
+
+  .card.is-next{
+    border-color:var(--violet-soft);
+    box-shadow:0 0 0 1px var(--violet-soft), 0 16px 40px -16px rgba(139,110,255,0.5);
+  }
+  .card.state-warn{
+    border-color:var(--warn-glow);
+    box-shadow:0 0 0 1px var(--warn-glow), 0 16px 34px -18px rgba(245,165,36,0.4);
+  }
+  .card.state-danger{
+    border-color:var(--danger-glow);
+    box-shadow:0 0 0 1px var(--danger-glow), 0 16px 34px -18px rgba(239,68,98,0.45);
+    animation:card-blink 1s ease-in-out infinite;
+  }
+  @keyframes card-blink{
+    0%, 100%{ background:var(--card); }
+    50%{ background:#241521; }
+  }
+
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .card-name{
+    font-family:'Chakra Petch', sans-serif;
+    font-size:17px;
+    font-weight:600;
+    line-height:1.25;
+  }
+  .card-interval{
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin-top:4px;
+    letter-spacing:0.02em;
+  }
+  .card-actions{ display:flex; gap:6px; flex-shrink:0; }
+
+  .badge-next{
+    position:absolute;
+    top:0; right:20px;
+    background:linear-gradient(135deg, var(--violet), var(--blue));
+    color:#fff;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:0 0 8px 8px;
+  }
+
+  .card-countdown{
+    font-family:'JetBrains Mono', monospace;
+    font-size:30px;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    margin-bottom:12px;
+    color:var(--text);
+  }
+  .state-warn .card-countdown{ color:var(--warn); }
+  .state-danger .card-countdown{ color:var(--danger); }
+
+  .card-zones{
+    display:flex;
+    gap:16px;
+    font-size:12px;
+    color:var(--text-dim);
+    margin-bottom:14px;
+  }
+  .card-zones b{ color:var(--text); font-weight:600; font-family:'JetBrains Mono', monospace;}
+
+  .card-bar-track{
+    height:5px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    overflow:hidden;
+  }
+  .card-bar-fill{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--blue), var(--violet));
+    transition:width 1s linear;
+  }
+  .state-warn .card-bar-fill{ background:linear-gradient(90deg, #ffb648, var(--warn)); }
+  .state-danger .card-bar-fill{ background:linear-gradient(90deg, #ff6b87, var(--danger)); }
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-dim);
+    border:1px dashed var(--card-border);
+    border-radius:var(--radius-lg);
+  }
+  .empty-state .big{ font-size:34px; margin-bottom:10px; }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(6,5,12,0.7);
+    backdrop-filter:blur(4px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay.open{ display:flex; }
+
+  .modal{
+    width:100%;
+    max-width:420px;
+    background:linear-gradient(165deg, #1a1826, #131120);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius-lg);
+    padding:26px;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.7);
+    animation:modal-in 0.22s ease;
+  }
+  @keyframes modal-in{
+    from{ opacity:0; transform:translateY(10px) scale(0.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .modal h3{
+    font-family:'Chakra Petch', sans-serif;
+    font-size:19px;
+    margin-bottom:18px;
+  }
+
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-dim);
+    margin-bottom:6px;
+    letter-spacing:0.02em;
+  }
+  .field input{
+    width:100%;
+    background:#0f0e17;
+    border:1px solid var(--card-border);
+    border-radius:10px;
+    padding:10px 12px;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    outline:none;
+    transition:border-color 0.2s ease;
+  }
+  .field input:focus{ border-color:var(--violet); }
+  .field input::-webkit-calendar-picker-indicator{ filter:invert(1); opacity:0.6; }
+
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+
+  .field-hint{ font-size:11px; color:var(--text-faint); margin-top:5px; }
+
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+  }
+
+  footer{
+    max-width:1180px;
+    margin:50px auto 0;
+    padding:0 20px;
+    text-align:center;
+    color:var(--text-faint);
+    font-size:12px;
+  }
+
+  @media (max-width:560px){
+    .hero-inner{ flex-direction:column; text-align:center; }
+    .hero-meta{ justify-content:center; }
+    .hero-ring-box{ width:150px; height:150px; }
+    .topbar{ flex-direction:column; align-items:flex-start; }
+    .world-clocks{ width:100%; justify-content:space-between; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
 </style>
 </head>
 <body>
+
 <div class="wrap">
-
-  <header>
-    <div>
-      <p class="brand-eyebrow">Throne &amp; Liberty · Astrum RU</p>
-      <h1 class="brand-title">Расписание боссов гильдии</h1>
-    </div>
-    <div class="tz-picker">
-      <label for="tz-select">Часовой пояс</label>
-      <select id="tz-select"></select>
-    </div>
-  </header>
-
-  <section class="hero">
-    <div class="ring-box">
-      <svg viewBox="0 0 168 168" width="168" height="168">
-        <circle class="ring-track" cx="84" cy="84" r="76"></circle>
-        <circle class="ring-progress" id="ring-progress" cx="84" cy="84" r="76" stroke-dasharray="477.5" stroke-dashoffset="477.5"></circle>
-      </svg>
-      <div class="ring-center">
-        <div class="ring-timer" id="ring-timer">--:--</div>
-        <div class="ring-label">до следующего</div>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6V12C4 16.5 7.5 20.5 12 22C16.5 20.5 20 16.5 20 12V6L12 2Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 8V13" stroke="white" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="white"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="title">Часовой</div>
+        <div class="subtitle">Throne and Liberty · таймеры событий</div>
       </div>
     </div>
-    <div class="hero-info">
-      <p class="kicker">Ближайший босс</p>
-      <h2 id="next-name">—</h2>
-      <p id="next-loc">Загружаю расписание…</p>
-    </div>
-  </section>
-
-  <div class="section-head"><h3>Мир</h3><div class="section-rule"></div></div>
-  <div class="weather-grid">
-    <div class="weather-card">
-      <p class="w-label">До смены погоды</p>
-      <p class="w-value" id="rain-value">—</p>
-      <p class="w-sub" id="rain-sub">—</p>
-    </div>
-    <div class="weather-card">
-      <p class="w-label">До смены фазы</p>
-      <p class="w-value" id="night-value">—</p>
-      <p class="w-sub" id="night-sub">—</p>
+    <div class="world-clocks">
+      <div class="clock-pill"><span class="dot"></span><span class="zone">МСК</span><span class="time" id="clockMSK">--:--:--</span></div>
+      <div class="clock-pill"><span class="dot"></span><span class="zone">ЕКБ</span><span class="time" id="clockEKB">--:--:--</span></div>
     </div>
   </div>
 
-  <div class="rain-panel">
-    <div class="rain-panel-head">
-      <div>
-        <p class="rain-panel-eyebrow">Следующие 24 часа</p>
-        <p class="rain-panel-title">Дождь</p>
+  <div class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="hero-ring-box">
+        <svg viewBox="0 0 180 180">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#8b6eff"/>
+              <stop offset="100%" stop-color="#4f7fff"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-track" cx="90" cy="90" r="78" stroke-width="9" fill="none"/>
+          <circle class="ring-progress" id="heroRing" cx="90" cy="90" r="78" stroke-width="9" fill="none" stroke-dasharray="490" stroke-dashoffset="490"/>
+        </svg>
+        <div class="hero-ring-label">
+          <div class="icon">⚔</div>
+        </div>
       </div>
-      <div class="rain-count-pill" id="rain-count">0</div>
-    </div>
-    <div class="rain-grid" id="rain-grid"></div>
-    <p class="rain-note" id="rain-accuracy-note"></p>
-  </div>
-
-  <div class="section-head">
-    <h3>Все боссы</h3>
-    <div class="section-rule"></div>
-    <button class="head-btn" id="unlock-btn">🔒 Редактировать</button>
-  </div>
-
-  <div class="edit-panel" id="edit-panel">
-    <h4 id="edit-panel-title">Добавить босса</h4>
-    <div class="form-grid">
-      <div class="form-field"><label for="f-name">Название</label><input id="f-name" type="text" placeholder="Босс-ивент"></div>
-      <div class="form-field"><label for="f-loc">Локация</label><input id="f-loc" type="text" placeholder="Руины обсерватории"></div>
-      <div class="form-field"><label for="f-note">Заметка (необязательно)</label><input id="f-note" type="text" placeholder="напр. лут: астралит"></div>
-      <div class="form-field"><label for="f-interval">Интервал, часы</label><input id="f-interval" type="number" min="0.1" step="0.1" placeholder="3"></div>
-      <div class="form-field"><label for="f-anchor">Дата и время любого спавна</label><input id="f-anchor" type="datetime-local"></div>
-    </div>
-    <div class="form-actions">
-      <button class="btn-primary" id="f-save">Сохранить</button>
-      <button class="btn-secondary" id="f-cancel">Отмена</button>
+      <div class="hero-body" id="heroBody">
+        <div class="hero-eyebrow"><span class="pulse"></span>Ближайшая активность</div>
+        <div class="hero-empty">Нет запланированных событий — добавьте первое ниже.</div>
+      </div>
     </div>
   </div>
 
-  <p class="sync-note" id="sync-note"></p>
+  <div class="controls-row">
+    <div class="section-title">События <span class="count" id="eventCount">0</span></div>
+    <button class="btn btn-primary" id="addBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="white" stroke-width="2.4" stroke-linecap="round"/></svg>
+      Добавить событие
+    </button>
+  </div>
 
-  <div class="boss-list" id="boss-list"></div>
+  <div class="grid" id="grid"></div>
+</div>
 
-  <footer>
-    Дождь считается по 75-часовому циклу с известными окнами (см. комментарий RAIN_WINDOW_OFFSETS_MIN в коде).<br>
-    Респауны боссов = точка спавна + интервал, повторяется по кругу без ручного пересчёта.
-  </footer>
+<footer>Все данные хранятся локально в вашем браузере (LocalStorage). Ничего не отправляется на сервер.</footer>
 
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">Новое событие</h3>
+    <form id="eventForm">
+      <div class="field">
+        <label for="fName">Название</label>
+        <input type="text" id="fName" placeholder="Например: Тевент" required maxlength="40">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="fHours">Период — часы</label>
+          <input type="number" id="fHours" min="0" max="99" value="3" required>
+        </div>
+        <div class="field">
+          <label for="fMinutes">Период — минуты</label>
+          <input type="number" id="fMinutes" min="0" max="59" value="0" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fFirst">Время первого появления</label>
+        <input type="datetime-local" id="fFirst" required>
+        <div class="field-hint">Указывается в часовом поясе вашего устройства.</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelBtn">Отмена</button>
+        <button type="submit" class="btn btn-primary" id="saveBtn">Сохранить</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>
-/* ------------------------------------------------------------------
-   ОБЩЕЕ ХРАНИЛИЩЕ (чтобы изменения на сайте видели все посетители)
+(function(){
+  "use strict";
 
-   Данные хранятся прямо в вашем GitHub-репозитории, в файле bosses.json.
-   Сайт сам его читает и перезаписывает через GitHub API.
+  const STORAGE_KEY = "tl-timers-events-v1";
+  const MSK_TZ = "Europe/Moscow";
+  const EKB_TZ = "Asia/Yekaterinburg";
 
-   Как подключить (один раз, 5 минут):
-     1. GitHub → Settings → Developer settings → Personal access tokens
-        → Fine-grained tokens → Generate new token
-     2. Repository access: выберите только Nevermore-timer (не "все репозитории")
-     3. Permissions → Contents → Read and write
-     4. Сгенерируйте токен и скопируйте его (показывается один раз)
-     5. Впишите токен ниже вместо ВСТАВЬТЕ_ТОКЕН
+  const grid = document.getElementById("grid");
+  const heroBody = document.getElementById("heroBody");
+  const hero = document.getElementById("hero");
+  const heroRing = document.getElementById("heroRing");
+  const eventCountEl = document.getElementById("eventCount");
+  const overlay = document.getElementById("overlay");
+  const eventForm = document.getElementById("eventForm");
+  const modalTitle = document.getElementById("modalTitle");
+  const fName = document.getElementById("fName");
+  const fHours = document.getElementById("fHours");
+  const fMinutes = document.getElementById("fMinutes");
+  const fFirst = document.getElementById("fFirst");
+  const addBtn = document.getElementById("addBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+  const clockMSK = document.getElementById("clockMSK");
+  const clockEKB = document.getElementById("clockEKB");
 
-   Файл bosses.json создастся в репозитории автоматически при первом
-   сохранении через сайт (руками создавать не нужно).
+  const RING_CIRCUMFERENCE = 2 * Math.PI * 78;
 
-   ⚠️ ВАЖНО ПРО СТАРЫЙ ТОКЕН: в предыдущей версии этого файла здесь был
-   зашит настоящий на вид GitHub-токен прямо в тексте (в проверке
-   STORAGE_CONFIGURED). Он был виден в исходном коде страницы всем
-   посетителям сайта. Если вы его ещё не отозвали — сделайте это прямо
-   сейчас: GitHub → Settings → Developer settings → Personal access
-   tokens → найдите токен → Revoke. Это не связано с тем, работает он
-   технически или нет — раз строка публично "засветилась", доверять ей
-   больше нельзя.
+  let editingId = null;
 
-   ⚠️ Также помните: любой токен, вписанный в этот файл, будет виден
-   любому, кто откроет исходный код страницы (Ctrl+U) — ограничение
-   любого чисто статичного сайта без своего сервера. Поэтому:
-   - токен должен иметь доступ ТОЛЬКО к этому одному репозиторию
-   - права только "Contents: Read and write", ничего больше
-   - если когда-нибудь заметите постороннюю правку — токен можно
-     мгновенно отозвать в тех же настройках GitHub и выпустить новый
-------------------------------------------------------------------- */
-
-const GITHUB_OWNER = "Nikysha1";
-const GITHUB_REPO = "Nevermore-timer";
-const GITHUB_BRANCH = "main";
-const GITHUB_FILE_PATH = "bosses.json";
-
-const TOKEN_PLACEHOLDER = "ВСТАВЬТЕ_ТОКЕН";
-const GITHUB_TOKEN = "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";
-
-// Пароль для входа в режим редактирования (просто чтобы случайный гость
-// не удалил всё нажатием пары кнопок — это не серьёзная защита, просто фильтр).
-const EDITOR_PASSWORD = "guild123";
-
-// ИСПРАВЛЕНО: раньше здесь сравнивалось со старым зашитым токеном
-// (см. предупреждение выше), из-за чего placeholder ошибочно считался
-// "настроенным" и сохранение молча падало с ошибкой авторизации.
-// Теперь корректно: настроено = токен реально вписан, а не placeholder.
-const STORAGE_CONFIGURED = GITHUB_TOKEN !== TOKEN_PLACEHOLDER && GITHUB_TOKEN.trim() !== "";
-let currentFileSha = null; // нужен GitHub API, чтобы обновлять (не создавать заново) файл
-
-const DEFAULT_BOSSES = [
-  { id: "b1", name: "Тивент",              location: "Руины", note: "", anchor: "2026-07-15T08:00:00+05:00", intervalHours: 3 },
-  { id: "b2", name: "Рыбалка", location: "Бездна",          note: "", anchor: "2026-07-15T06:20:00+05:00", intervalHours: 3 },
-];
-
-/* ------------------------------------------------------------------
-   Часовые пояса в переключателе.
-------------------------------------------------------------------- */
-
-const TIMEZONES = [
-  { label: "Москва (UTC+3)",        offsetMinutes: 180 },
-  { label: "Екатеринбург (UTC+5)",  offsetMinutes: 300 },
-  { label: "Новосибирск (UTC+7)",   offsetMinutes: 420 },
-  { label: "Владивосток (UTC+10)",  offsetMinutes: 600 },
-  { label: "Киев/Минск (UTC+3)",    offsetMinutes: 180 },
-  { label: "Алматы (UTC+5)",        offsetMinutes: 300 },
-  { label: "UTC",                   offsetMinutes: 0 },
-];
-
-/* ------------------------------------------------------------------
-   ДОЖДЬ — 75-часовой цикл, окна по 15 минут, не через равный интервал
-   (в игре паузы между окнами от 15 минут до ~5 часов).
-
-   RAIN_ANCHOR_MS — момент начала окна №0 (calibровка: 15.07.2026 08:15
-   по Екатеринбургу/UTC+5, подтверждено скриншотом расписания).
-
-   RAIN_WINDOW_OFFSETS_MIN — список смещений (в минутах от RAIN_ANCHOR_MS)
-   начала КАЖДОГО окна дождя внутри одного полного 75-часового цикла
-   (0..4499 минут). Пока вписаны только окна за первые ~24 часа —
-   этого достаточно, чтобы график был правильным на ближайшие сутки,
-   но после этого повторяющийся паттерн ещё не известен целиком, и
-   график покажет "нет данных" за пределами собранного диапазона.
-
-   ЧТО ДЕЛАТЬ ДАЛЬШЕ: соберите окна за все 75 часов подряд (несколько
-   заходов на сайт-источник в течение 3+ суток, записывая время начала
-   каждого окна по Екатеринбургу), переведите каждое время в минуты от
-   RAIN_ANCHOR_MS (00:00 15.07 = 08:15 15.07 - 08:15 = -495 мин и т.д.,
-   удобнее считать от самого начала суток наблюдения) и допишите в этот
-   массив по возрастанию, без дублей, в диапазоне 0..4499. Как только
-   массив покроет все 4500 минут — график станет вечным и точным.
-------------------------------------------------------------------- */
-
-const RAIN_ANCHOR_MS = 1784093700000; // 15.07.2026 08:15 (Екатеринбург, UTC+5) — начало окна №0
-const RAIN_CYCLE_MIN = 75 * 60;       // 4500 минут = 75 часов
-const RAIN_WINDOW_DURATION_MIN = 15;
-
-const RAIN_WINDOW_OFFSETS_MIN = [
-  0,     // 08:15
-  30,    // 08:45
-  90,    // 09:45
-  210,   // 11:45 (пример — сверьте с реальным списком, тут только оформление-заглушка)
-  330,   // 13:45
-  480,   // 16:15
-  600,   // 18:15
-  660,   // 19:15
-  750,   // 20:45
-  840,   // 22:15
-  990,   // 00:30
-  1080,  // 02:00
-  1140,  // 03:00
-  1200,  // 04:00
-  1290,  // 05:30
-  1380,  // 07:00
-];
-// ⚠️ Значения выше — временная заглушка на основе округлённых промежутков
-
-/* ------------------------------------------------------------------
-   ДЕНЬ / НОЧЬ — 2 часа день + 30 минут ночь, откалибровано по серверу.
-------------------------------------------------------------------- */
-
-const DAY_MS = 2 * 3600 * 1000;
-const NIGHT_MS = 30 * 60 * 1000;
-const NIGHT_ANCHOR_MS = 1784070000000; // 15.07.2026 04:00 UTC+5
-
-/* ------------------------------------------------------------------ */
-
-function mod(a, n) { return ((a % n) + n) % n; }
-
-function fmtCountdown(ms) {
-  if (ms == null) return '—';
-  if (ms < 0) ms = 0;
-  const totalSec = Math.floor(ms/1000);
-  const h = Math.floor(totalSec/3600);
-  const m = Math.floor((totalSec%3600)/60);
-  const s = totalSec%60;
-  const pad = n => String(n).padStart(2,'0');
-  return h > 0 ? (h+':'+pad(m)+':'+pad(s)) : (pad(m)+':'+pad(s));
-}
-
-function fmtClockInTZ(ms, offsetMinutes) {
-  const shifted = new Date(ms + offsetMinutes * 60000);
-  return String(shifted.getUTCHours()).padStart(2,'0') + ':' + String(shifted.getUTCMinutes()).padStart(2,'0');
-}
-
-function nextBossOccurrence(anchorIso, intervalHours, nowMs) {
-  const anchorMs = new Date(anchorIso).getTime();
-  const intervalMs = intervalHours * 3600 * 1000;
-  if (anchorMs > nowMs) return anchorMs;
-  const diff = nowMs - anchorMs;
-  const steps = Math.ceil(diff / intervalMs) || 1;
-  let result = anchorMs + steps * intervalMs;
-  if (result <= nowMs) result += intervalMs;
-  return result;
-}
-
-function statusFor(msRemaining) {
-  if (msRemaining <= 5 * 60 * 1000) return 'live';
-  if (msRemaining <= 30 * 60 * 1000) return 'soon';
-  return 'normal';
-}
-
-/* ---- дождь: список окон на N часов вперёд от nowMs ---- */
-function getRainWindows(nowMs, hoursAhead) {
-  const cycleMs = RAIN_CYCLE_MIN * 60000;
-  const durMs = RAIN_WINDOW_DURATION_MIN * 60000;
-  const horizonMs = nowMs + hoursAhead * 3600000;
-
-  const startCycle = Math.floor((nowMs - RAIN_ANCHOR_MS) / cycleMs) - 1;
-  const endCycle = Math.floor((horizonMs - RAIN_ANCHOR_MS) / cycleMs) + 1;
-
-  const windows = [];
-  for (let c = startCycle; c <= endCycle; c++) {
-    const cycleStart = RAIN_ANCHOR_MS + c * cycleMs;
-    RAIN_WINDOW_OFFSETS_MIN.forEach(offsetMin => {
-      const start = cycleStart + offsetMin * 60000;
-      const end = start + durMs;
-      if (end >= nowMs && start <= horizonMs) windows.push({ start, end });
-    });
+  function uid(){
+    return "e_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
   }
-  windows.sort((a, b) => a.start - b.start);
-  return windows;
-}
 
-function rainStatus(nowMs) {
-  const windows = getRainWindows(nowMs, 24);
-  const current = windows.find(w => nowMs >= w.start && nowMs < w.end);
-  if (current) return { raining: true, remainingMs: current.end - nowMs, windows, current };
-  const next = windows.find(w => w.start > nowMs);
-  return { raining: false, remainingMs: next ? next.start - nowMs : null, windows, next };
-}
+  function defaultEvents(){
+    const now = Date.now();
+    return [
+      { id: uid(), name: "Тевент", hours: 3, minutes: 0, first: now - (1000 * 60 * 38) },
+      { id: uid(), name: "Экскаватрон", hours: 2, minutes: 0, first: now - (1000 * 60 * 95) },
+      { id: uid(), name: "Аденциус", hours: 6, minutes: 0, first: now - (1000 * 60 * 300) },
+      { id: uid(), name: "Корнелиус", hours: 4, minutes: 30, first: now - (1000 * 60 * 40) }
+    ];
+  }
 
-function nightStatus(nowMs) {
-  const cycle = DAY_MS + NIGHT_MS;
-  const since = mod(nowMs - NIGHT_ANCHOR_MS, cycle);
-  if (since < NIGHT_MS) return { isNight: true, remainingMs: NIGHT_MS - since };
-  return { isNight: false, remainingMs: cycle - since };
-}
+  function loadEvents(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultEvents();
+      const parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed) || parsed.length === 0) return defaultEvents();
+      return parsed;
+    }catch(e){
+      return defaultEvents();
+    }
+  }
 
-/* ------------------------------------------------------------------
-   Хранилище боссов (GitHub-репозиторий либо режим только для чтения)
-------------------------------------------------------------------- */
+  function saveEvents(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+  }
 
-let bosses = [];
-let editingId = null;
-let unlocked = false;
+  let events = loadEvents();
 
-const GITHUB_API_BASE = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  function intervalMs(ev){
+    return ((ev.hours||0) * 3600 + (ev.minutes||0) * 60) * 1000;
+  }
 
-function utf8ToBase64(str) {
-  return btoa(unescape(encodeURIComponent(str)));
-}
-function base64ToUtf8(b64) {
-  return decodeURIComponent(escape(atob(b64.replace(/\n/g, ''))));
-}
+  // Returns the timestamp (ms) of the next occurrence strictly after "now"
+  function nextOccurrence(ev, now){
+    const step = intervalMs(ev);
+    if(step <= 0) return ev.first;
+    if(now < ev.first) return ev.first;
+    const elapsed = now - ev.first;
+    const cycles = Math.floor(elapsed / step) + 1;
+    return ev.first + cycles * step;
+  }
 
-async function loadBosses() {
-  try {
-    // публичный репозиторий — читать можно без токена
-    const res = await fetch(`${GITHUB_API_BASE}?ref=${GITHUB_BRANCH}`, {
-      headers: { "Accept": "application/vnd.github+json" }
-    });
-    if (res.status === 404) {
-      // файла ещё нет в репозитории — работаем на встроенном примере
-      currentFileSha = null;
-      bosses = DEFAULT_BOSSES.slice();
+  function fmtDuration(ms){
+    if(ms < 0) ms = 0;
+    const totalSec = Math.floor(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const pad = n => String(n).padStart(2, "0");
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+
+  function fmtZoneTime(ts, tz){
+    return new Date(ts).toLocaleTimeString("ru-RU", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
+  }
+
+  function fmtIntervalLabel(ev){
+    const h = ev.hours || 0, m = ev.minutes || 0;
+    let parts = [];
+    if(h > 0) parts.push(`${h} ч`);
+    if(m > 0) parts.push(`${m} мин`);
+    if(parts.length === 0) parts.push("0 мин");
+    return "Каждые " + parts.join(" ");
+  }
+
+  function stateFor(remainingMs){
+    if(remainingMs <= 60 * 1000) return "danger";
+    if(remainingMs <= 10 * 60 * 1000) return "warn";
+    return "";
+  }
+
+  // ---------- Rendering ----------
+
+  function render(){
+    const now = Date.now();
+    const withNext = events.map(ev => ({ ev, next: nextOccurrence(ev, now) }));
+    withNext.sort((a, b) => a.next - b.next);
+
+    eventCountEl.textContent = events.length;
+
+    renderHero(withNext[0], now);
+    renderGrid(withNext, now);
+  }
+
+  function renderHero(entry, now){
+    if(!entry){
+      heroBody.innerHTML = `
+        <div class="hero-eyebrow"><span class="pulse"></span>Ближайшая активность</div>
+        <div class="hero-empty">Нет запланированных событий — добавьте первое ниже.</div>
+      `;
+      heroRing.setAttribute("stroke-dasharray", RING_CIRCUMFERENCE);
+      heroRing.setAttribute("stroke-dashoffset", RING_CIRCUMFERENCE);
       return;
     }
-    const data = await res.json();
-    currentFileSha = data.sha;
-    const parsed = JSON.parse(base64ToUtf8(data.content));
-    bosses = (parsed && parsed.length) ? parsed : DEFAULT_BOSSES.slice();
-  } catch (e) {
-    bosses = DEFAULT_BOSSES.slice();
-  }
-}
+    const { ev, next } = entry;
+    const remaining = next - now;
+    const step = intervalMs(ev) || 1;
+    const progress = 1 - Math.min(1, Math.max(0, remaining / step));
+    const dashoffset = RING_CIRCUMFERENCE * (1 - progress);
+    heroRing.setAttribute("stroke-dasharray", RING_CIRCUMFERENCE);
+    heroRing.setAttribute("stroke-dashoffset", dashoffset.toFixed(1));
 
-async function saveBosses() {
-  if (!STORAGE_CONFIGURED) {
-    document.getElementById('sync-note').textContent =
-      "Токен GitHub не настроен (GITHUB_TOKEN) — изменения видны только вам и пропадут при перезагрузке страницы.";
-    return;
-  }
-  try {
-    const body = {
-      message: "Обновление расписания боссов через сайт",
-      content: utf8ToBase64(JSON.stringify(bosses, null, 2)),
-      branch: GITHUB_BRANCH
-    };
-    if (currentFileSha) body.sha = currentFileSha;
-
-    const res = await fetch(GITHUB_API_BASE, {
-      method: "PUT",
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": `Bearer ${GITHUB_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      document.getElementById('sync-note').textContent = "Ошибка сохранения: " + (data.message || res.status);
-      return;
+    const state = stateFor(remaining);
+    hero.style.setProperty("--dummy", "0");
+    if(state === "danger"){
+      heroRing.style.stroke = "#ef4462";
+    } else if(state === "warn"){
+      heroRing.style.stroke = "#f5a524";
+    } else {
+      heroRing.style.stroke = "url(#ringGradient)";
     }
-    currentFileSha = data.content.sha;
-    document.getElementById('sync-note').textContent =
-      "Сохранено. GitHub Pages обновит сайт для остальных за 30-60 секунд.";
-  } catch (e) {
-    document.getElementById('sync-note').textContent = "Не удалось сохранить — проверьте интернет-соединение.";
-  }
-}
 
-function genId() { return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
-/* ------------------------------------------------------------------
-   UI
-------------------------------------------------------------------- */
-
-const tzSelect = document.getElementById('tz-select');
-let tzIndex = 1; // по умолчанию Екатеринбург, т.к. на нём калиброван дождь
-TIMEZONES.forEach((tz, i) => {
-  const opt = document.createElement('option');
-  opt.value = i; opt.textContent = tz.label;
-  tzSelect.appendChild(opt);
-});
-tzSelect.value = tzIndex;
-tzSelect.addEventListener('change', () => { tzIndex = Number(tzSelect.value); });
-
-const listEl = document.getElementById('boss-list');
-const ringProgress = document.getElementById('ring-progress');
-const ringTimer = document.getElementById('ring-timer');
-const nextName = document.getElementById('next-name');
-const nextLoc = document.getElementById('next-loc');
-const rainValueEl = document.getElementById('rain-value');
-const rainSubEl = document.getElementById('rain-sub');
-const nightValueEl = document.getElementById('night-value');
-const nightSubEl = document.getElementById('night-sub');
-const rainGridEl = document.getElementById('rain-grid');
-const rainCountEl = document.getElementById('rain-count');
-const rainAccuracyNoteEl = document.getElementById('rain-accuracy-note');
-const unlockBtn = document.getElementById('unlock-btn');
-const editPanel = document.getElementById('edit-panel');
-const editPanelTitle = document.getElementById('edit-panel-title');
-const fName = document.getElementById('f-name');
-const fLoc = document.getElementById('f-loc');
-const fNote = document.getElementById('f-note');
-const fInterval = document.getElementById('f-interval');
-const fAnchor = document.getElementById('f-anchor');
-
-const RING_CIRC = 477.5;
-
-rainAccuracyNoteEl.textContent =
-  "Часть окон ниже — заглушка (приблизительные интервалы), не точная копия игры. Замените RAIN_WINDOW_OFFSETS_MIN в коде на реальные данные за полный 75-часовой цикл, когда соберёте их.";
-
-unlockBtn.addEventListener('click', () => {
-  if (unlocked) {
-    unlocked = false;
-    unlockBtn.textContent = '🔒 Редактировать';
-    editPanel.classList.remove('open');
-    renderBossList();
-    return;
-  }
-  const pwd = prompt('Пароль редактора:');
-  if (pwd === EDITOR_PASSWORD) {
-    unlocked = true;
-    unlockBtn.textContent = '🔓 Выйти из редактирования';
-    renderBossList();
-  } else if (pwd !== null) {
-    alert('Неверный пароль.');
-  }
-});
-
-function openForm(boss) {
-  editingId = boss ? boss.id : null;
-  editPanelTitle.textContent = boss ? 'Изменить босса' : 'Добавить босса';
-  fName.value = boss ? boss.name : '';
-  fLoc.value = boss ? boss.location : '';
-  fNote.value = boss ? (boss.note || '') : '';
-  fInterval.value = boss ? boss.intervalHours : '';
-  if (boss) {
-    const d = new Date(boss.anchor);
-    const pad = n => String(n).padStart(2,'0');
-    fAnchor.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  } else {
-    fAnchor.value = '';
-  }
-  editPanel.classList.add('open');
-}
-
-document.getElementById('f-cancel').addEventListener('click', () => {
-  editPanel.classList.remove('open');
-  editingId = null;
-});
-
-document.getElementById('f-save').addEventListener('click', async () => {
-  const name = fName.value.trim();
-  const location = fLoc.value.trim();
-  const note = fNote.value.trim();
-  const intervalHours = parseFloat(fInterval.value);
-  const anchorLocal = fAnchor.value;
-
-  if (!name || !location || !anchorLocal || !intervalHours || intervalHours <= 0) {
-    alert('Заполните название, локацию, дату спавна и интервал (> 0).');
-    return;
-  }
-
-  const anchorIso = new Date(anchorLocal).toISOString();
-
-  if (editingId) {
-    const b = bosses.find(x => x.id === editingId);
-    Object.assign(b, { name, location, note, anchor: anchorIso, intervalHours });
-  } else {
-    bosses.push({ id: genId(), name, location, note, anchor: anchorIso, intervalHours });
-  }
-
-  editPanel.classList.remove('open');
-  editingId = null;
-  renderBossList();
-  await saveBosses();
-});
-
-function addFreshAddButton() {
-  const btnRow = document.createElement('div');
-  btnRow.style.marginBottom = '16px';
-  const btn = document.createElement('button');
-  btn.className = 'btn-secondary';
-  btn.textContent = '+ Добавить босса';
-  btn.addEventListener('click', () => openForm(null));
-  btnRow.appendChild(btn);
-  return btnRow;
-}
-
-function renderBossList() {
-  listEl.innerHTML = '';
-
-  if (unlocked) {
-    listEl.appendChild(addFreshAddButton());
-  }
-
-  bosses.forEach((b) => {
-    const row = document.createElement('div');
-    row.className = 'boss-row';
-    row.dataset.id = b.id;
-    row.innerHTML = `
-      <div class="boss-clock"><span class="hh" data-clock="${b.id}">--:--</span><br>каждые ${b.intervalHours} ч</div>
-      <div class="boss-name-wrap">
-        <p class="boss-name">${b.name}</p>
-        <p class="boss-loc">${b.location}</p>
-        ${b.note ? `<p class="boss-note">${b.note}</p>` : ''}
+    heroBody.innerHTML = `
+      <div class="hero-eyebrow"><span class="pulse"></span>Ближайшая активность</div>
+      <div class="hero-name">${escapeHtml(ev.name)}</div>
+      <div class="hero-countdown" id="heroCountdown" data-next="${next}">${fmtDuration(remaining)}</div>
+      <div class="hero-meta">
+        <div>МСК: <strong>${fmtZoneTime(next, MSK_TZ)}</strong></div>
+        <div>ЕКБ: <strong>${fmtZoneTime(next, EKB_TZ)}</strong></div>
+        <div>${fmtIntervalLabel(ev)}</div>
       </div>
-      <div class="boss-countdown" data-idx="${b.id}">--:--</div>
-      <div class="status-pill" data-idx="${b.id}">—</div>
-      ${unlocked ? `<div class="row-actions">
-        <button class="icon-btn" data-edit="${b.id}" title="Изменить">✏️</button>
-        <button class="icon-btn danger" data-del="${b.id}" title="Удалить">🗑</button>
-      </div>` : '<div></div>'}
     `;
-    listEl.appendChild(row);
-  });
+  }
 
-  listEl.querySelectorAll('[data-edit]').forEach(btn => {
-    btn.addEventListener('click', () => openForm(bosses.find(x => x.id === btn.dataset.edit)));
-  });
-  listEl.querySelectorAll('[data-del]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if (!confirm('Удалить это напоминание безвозвратно?')) return;
-      bosses = bosses.filter(x => x.id !== btn.dataset.del);
-      renderBossList();
-      await saveBosses();
+  function renderGrid(withNext, now){
+    if(withNext.length === 0){
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="big">🗺️</div>
+        <div>Список событий пуст.<br>Нажмите «Добавить событие», чтобы начать отслеживание.</div>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = withNext.map(({ ev, next }, idx) => {
+      const remaining = next - now;
+      const state = stateFor(remaining);
+      const step = intervalMs(ev) || 1;
+      const progress = Math.min(1, Math.max(0, 1 - remaining / step)) * 100;
+      const stateClass = state ? `state-${state}` : "";
+      const nextClass = idx === 0 ? "is-next" : "";
+      return `
+        <div class="card ${stateClass} ${nextClass}" data-id="${ev.id}" data-next="${next}" data-step="${step}">
+          ${idx === 0 ? '<div class="badge-next">Ближайшее</div>' : ""}
+          <div class="card-top">
+            <div>
+              <div class="card-name">${escapeHtml(ev.name)}</div>
+              <div class="card-interval">${fmtIntervalLabel(ev)}</div>
+            </div>
+            <div class="card-actions">
+              <button class="btn-icon" data-action="edit" title="Редактировать">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5L20.5 7.5L8 20H4V16L16.5 3.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="btn-icon danger" data-action="delete" title="Удалить">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 7H20M9 7V4H15V7M6 7L7 20H17L18 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="card-countdown">${fmtDuration(remaining)}</div>
+          <div class="card-zones">
+            <div>МСК: <b>${fmtZoneTime(next, MSK_TZ)}</b></div>
+            <div>ЕКБ: <b>${fmtZoneTime(next, EKB_TZ)}</b></div>
+          </div>
+          <div class="card-bar-track"><div class="card-bar-fill" style="width:${progress.toFixed(2)}%"></div></div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ---------- Tick: cheap per-second update, full render only on rollover ----------
+
+  function tick(){
+    const now = Date.now();
+    let needsFullRender = false;
+
+    // update hero countdown
+    const heroCountdown = document.getElementById("heroCountdown");
+    if(heroCountdown){
+      const next = Number(heroCountdown.dataset.next);
+      const remaining = next - now;
+      if(remaining <= 0){
+        needsFullRender = true;
+      } else {
+        heroCountdown.textContent = fmtDuration(remaining);
+        const state = stateFor(remaining);
+        heroRing.style.stroke = state === "danger" ? "#ef4462" : state === "warn" ? "#f5a524" : "url(#ringGradient)";
+        const step = Number(document.querySelector('.card[data-next="' + next + '"]')?.dataset.step) || null;
+      }
+    }
+
+    // update each card
+    document.querySelectorAll(".card[data-id]").forEach(card => {
+      const next = Number(card.dataset.next);
+      const step = Number(card.dataset.step) || 1;
+      const remaining = next - now;
+      if(remaining <= 0){
+        needsFullRender = true;
+        return;
+      }
+      const countdownEl = card.querySelector(".card-countdown");
+      if(countdownEl) countdownEl.textContent = fmtDuration(remaining);
+
+      const state = stateFor(remaining);
+      card.classList.remove("state-warn", "state-danger");
+      if(state) card.classList.add("state-" + state);
+
+      const progress = Math.min(1, Math.max(0, 1 - remaining / step)) * 100;
+      const bar = card.querySelector(".card-bar-fill");
+      if(bar) bar.style.width = progress.toFixed(2) + "%";
     });
+
+    if(needsFullRender){
+      render();
+    }
+
+    // world clocks
+    clockMSK.textContent = new Date(now).toLocaleTimeString("ru-RU", { timeZone: MSK_TZ, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    clockEKB.textContent = new Date(now).toLocaleTimeString("ru-RU", { timeZone: EKB_TZ, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  }
+
+  // ---------- Modal / form handling ----------
+
+  function toDatetimeLocalValue(ts){
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function openModal(ev){
+    editingId = ev ? ev.id : null;
+    modalTitle.textContent = ev ? "Редактировать событие" : "Новое событие";
+    fName.value = ev ? ev.name : "";
+    fHours.value = ev ? ev.hours : 3;
+    fMinutes.value = ev ? ev.minutes : 0;
+    fFirst.value = toDatetimeLocalValue(ev ? ev.first : Date.now());
+    overlay.classList.add("open");
+    setTimeout(() => fName.focus(), 50);
+  }
+
+  function closeModal(){
+    overlay.classList.remove("open");
+    editingId = null;
+    eventForm.reset();
+  }
+
+  addBtn.addEventListener("click", () => openModal(null));
+  cancelBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => { if(e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", (e) => { if(e.key === "Escape" && overlay.classList.contains("open")) closeModal(); });
+
+  eventForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = fName.value.trim();
+    const hours = Math.max(0, parseInt(fHours.value, 10) || 0);
+    const minutes = Math.max(0, Math.min(59, parseInt(fMinutes.value, 10) || 0));
+    const firstTs = new Date(fFirst.value).getTime();
+
+    if(!name || (hours === 0 && minutes === 0) || isNaN(firstTs)){
+      return;
+    }
+
+    if(editingId){
+      const ev = events.find(x => x.id === editingId);
+      if(ev){
+        ev.name = name;
+        ev.hours = hours;
+        ev.minutes = minutes;
+        ev.first = firstTs;
+      }
+    } else {
+      events.push({ id: uid(), name, hours, minutes, first: firstTs });
+    }
+
+    saveEvents();
+    closeModal();
+    render();
   });
-}
 
-function renderRainGrid(windows, nowMs, offsetMinutes) {
-  rainGridEl.innerHTML = '';
-  rainCountEl.textContent = String(windows.length);
+  grid.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if(!btn) return;
+    const card = e.target.closest(".card[data-id]");
+    if(!card) return;
+    const id = card.dataset.id;
+    const action = btn.dataset.action;
 
-  const nextIdx = windows.findIndex(w => w.start > nowMs);
-
-  windows.forEach((w, i) => {
-    const cell = document.createElement('div');
-    const isNow = nowMs >= w.start && nowMs < w.end;
-    const isNext = !isNow && i === nextIdx;
-    cell.className = 'rain-cell' + (isNow ? ' is-now' : '') + (isNext ? ' is-next' : '');
-    const timeStr = fmtClockInTZ(w.start, offsetMinutes) + ' – ' + fmtClockInTZ(w.end, offsetMinutes);
-    const statusStr = isNow ? 'сейчас' : (isNext ? 'следующий' : 'ожидается');
-    cell.innerHTML = `<div class="rc-time">${timeStr}</div><div class="rc-status">${statusStr}</div>`;
-    rainGridEl.appendChild(cell);
-  });
-}
-
-function tick() {
-  const nowMs = Date.now();
-  const offsetMinutes = TIMEZONES[tzIndex].offsetMinutes;
-  let soonest = null;
-
-  bosses.forEach((b) => {
-    const targetMs = nextBossOccurrence(b.anchor, b.intervalHours, nowMs);
-    const remaining = targetMs - nowMs;
-    if (soonest === null || remaining < soonest.remaining) soonest = { boss: b, remaining, targetMs };
-
-    const clockEl = listEl.querySelector(`[data-clock="${b.id}"]`);
-    if (clockEl) clockEl.textContent = fmtClockInTZ(targetMs, offsetMinutes);
-    const countdownEl = listEl.querySelector(`.boss-countdown[data-idx="${b.id}"]`);
-    const pillEl = listEl.querySelector(`.status-pill[data-idx="${b.id}"]`);
-    if (countdownEl) countdownEl.textContent = fmtCountdown(remaining);
-    if (pillEl) {
-      const st = statusFor(remaining);
-      pillEl.className = 'status-pill status-' + st;
-      pillEl.textContent = st === 'live' ? 'скоро!' : (st === 'soon' ? 'приближается' : 'ожидание');
+    if(action === "edit"){
+      const ev = events.find(x => x.id === id);
+      if(ev) openModal(ev);
+    } else if(action === "delete"){
+      const ev = events.find(x => x.id === id);
+      const label = ev ? ev.name : "это событие";
+      if(confirm(`Удалить «${label}» из списка отслеживания?`)){
+        events = events.filter(x => x.id !== id);
+        saveEvents();
+        render();
+      }
     }
   });
 
-  if (soonest) {
-    nextName.textContent = soonest.boss.name;
-    nextLoc.textContent = soonest.boss.location + ' · каждые ' + soonest.boss.intervalHours + ' ч · в ' + fmtClockInTZ(soonest.targetMs, offsetMinutes);
-    ringTimer.textContent = fmtCountdown(soonest.remaining);
-    const cycleMs = soonest.boss.intervalHours * 3600 * 1000;
-    const fraction = 1 - Math.min(soonest.remaining / cycleMs, 1);
-    ringProgress.style.strokeDashoffset = String(RING_CIRC * (1 - fraction));
-    ringProgress.classList.toggle('is-live', soonest.remaining <= 5 * 60 * 1000);
-  } else {
-    nextName.textContent = 'Нет активных боссов';
-    nextLoc.textContent = 'Добавьте боссов через режим редактирования';
-  }
+  // ---------- Init ----------
 
-  const rain = rainStatus(nowMs);
-  if (rain.raining) {
-    rainValueEl.textContent = 'идёт · ' + fmtCountdown(rain.remainingMs);
-    rainSubEl.textContent = 'закончится через ' + fmtCountdown(rain.remainingMs);
-  } else {
-    rainValueEl.textContent = fmtCountdown(rain.remainingMs);
-    rainSubEl.textContent = 'дождь начнётся через ' + fmtCountdown(rain.remainingMs);
-  }
-  renderRainGrid(rain.windows, nowMs, offsetMinutes);
-
-  const ns = nightStatus(nowMs);
-  if (ns.isNight) {
-    nightValueEl.textContent = fmtCountdown(ns.remainingMs);
-    nightSubEl.textContent = 'ночь · день начнётся через ' + fmtCountdown(ns.remainingMs);
-  } else {
-    nightValueEl.textContent = fmtCountdown(ns.remainingMs);
-    nightSubEl.textContent = 'день · ночь начнётся через ' + fmtCountdown(ns.remainingMs);
-  }
-}
-
-(async function init() {
-  await loadBosses();
-  if (!STORAGE_CONFIGURED) {
-    document.getElementById('sync-note').textContent =
-      "Режим только для чтения: настройте GITHUB_TOKEN в коде, чтобы изменения сохранялись для всех.";
-  }
-  renderBossList();
+  saveEvents();
+  render();
   tick();
   setInterval(tick, 1000);
+
 })();
 </script>
-
 </body>
 </html>
